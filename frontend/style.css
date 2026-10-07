@@ -1593,6 +1593,12 @@ input[type="date"] {
     font-weight: bold;
 }
 
+.time-slot.selected {
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
+}
+
 
 /* BOOKING SUMMARY */
 
