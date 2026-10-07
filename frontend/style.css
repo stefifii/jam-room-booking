@@ -1,0 +1,1905 @@
+/* ==================================================
+   GLOBAL
+================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f0e9;
+    color: #171717;
+    line-height: 1.6;
+}
+
+
+img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+:root {
+
+    --black: #171717;
+
+    --black-soft: #222222;
+
+    --cream: #f4f0e9;
+
+    --cream-light: #fffdf9;
+
+    --gold: #c6a56a;
+
+    --gold-light: #e0c38b;
+
+    --brown: #8d714a;
+
+    --gray: #77736c;
+
+    --gray-light: #aaa59c;
+
+}
+
+
+
+/* ==================================================
+   NAVBAR
+================================================== */
+
+header {
+
+    background: var(--black);
+
+    color: var(--cream);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+}
+
+
+.navbar {
+
+    max-width: 1400px;
+
+    margin: auto;
+
+    padding: 18px 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
+
+/* LOGO IMAGE */
+
+.brand {
+
+    width: 85px;
+
+    height: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+
+.brand img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: contain;
+
+}
+
+
+
+/* NAV LINKS */
+
+.nav-links {
+
+    display: flex;
+
+    gap: 38px;
+
+}
+
+
+.nav-links a {
+
+    color: #d5d1c9;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+    transition: 0.3s;
+
+}
+
+
+.nav-links a:hover {
+
+    color: var(--gold);
+
+}
+
+
+
+/* NAV BUTTON */
+
+.nav-button {
+
+    border: 1px solid var(--gold);
+
+    padding: 11px 20px;
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+
+    transition: 0.3s;
+
+}
+
+
+.nav-button:hover {
+
+    background: var(--gold);
+
+    color: var(--black);
+
+}
+
+
+
+/* ==================================================
+   HERO
+================================================== */
+
+.hero {
+
+    min-height: 700px;
+
+    padding: 80px 7%;
+
+    background: var(--black);
+
+    color: var(--cream);
+
+    display: grid;
+
+    grid-template-columns: 0.9fr 1.1fr;
+
+    align-items: center;
+
+    gap: 80px;
+
+}
+
+
+.hero-content {
+
+    max-width: 600px;
+
+}
+
+
+.eyebrow {
+
+    color: var(--gold);
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    letter-spacing: 4px;
+
+    margin-bottom: 22px;
+
+}
+
+
+.hero h1 {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: clamp(60px, 7vw, 105px);
+
+    line-height: 0.9;
+
+    font-weight: 400;
+
+    letter-spacing: -5px;
+
+}
+
+
+.hero h1 em {
+
+    color: var(--gold);
+
+    font-style: italic;
+
+}
+
+
+.hero-description {
+
+    max-width: 480px;
+
+    margin-top: 35px;
+
+    color: var(--gray-light);
+
+    font-size: 15px;
+
+}
+
+
+.hero-buttons {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 28px;
+
+    margin-top: 40px;
+
+}
+
+
+.primary-button {
+
+    display: inline-block;
+
+    background: var(--gold);
+
+    color: var(--black);
+
+    padding: 15px 27px;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    transition: 0.3s;
+
+}
+
+
+.primary-button:hover {
+
+    background: var(--gold-light);
+
+    transform: translateY(-3px);
+
+}
+
+
+.secondary-button {
+
+    color: #ddd8cf;
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+
+    transition: 0.3s;
+
+}
+
+
+.secondary-button:hover {
+
+    color: var(--gold);
+
+}
+
+
+
+/* HERO DETAILS */
+
+.hero-details {
+
+    display: flex;
+
+    gap: 45px;
+
+    margin-top: 65px;
+
+    padding-top: 25px;
+
+    border-top: 1px solid #393939;
+
+}
+
+
+.hero-details div {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.hero-details strong {
+
+    font-family: Georgia, serif;
+
+    font-size: 22px;
+
+    font-weight: 400;
+
+}
+
+
+.hero-details span {
+
+    color: var(--gray-light);
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 2px;
+
+    margin-top: 3px;
+
+}
+
+
+
+/* HERO IMAGE */
+
+.hero-image {
+
+    height: 570px;
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+.hero-image img {
+
+    transition: 0.6s;
+
+}
+
+
+.hero-image:hover img {
+
+    transform: scale(1.03);
+
+}
+
+
+.image-overlay {
+
+    position: absolute;
+
+    bottom: 25px;
+
+    left: 25px;
+
+    right: 25px;
+
+    padding: 20px 25px;
+
+    background: rgba(23, 23, 23, 0.82);
+
+    backdrop-filter: blur(6px);
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+
+.image-overlay span {
+
+    color: var(--gold);
+
+    font-family: Georgia, serif;
+
+    font-size: 20px;
+
+}
+
+
+.image-overlay p {
+
+    font-size: 10px;
+
+    letter-spacing: 3px;
+
+}
+
+
+
+/* ==================================================
+   ABOUT
+================================================== */
+
+.about {
+
+    max-width: 1250px;
+
+    margin: auto;
+
+    padding: 130px 50px;
+
+}
+
+
+.section-number {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+
+.section-number span {
+
+    font-family: Georgia, serif;
+
+    color: var(--brown);
+
+    font-size: 22px;
+
+}
+
+
+.section-number p {
+
+    font-size: 10px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.about-grid {
+
+    margin-top: 55px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 0.8fr;
+
+    gap: 100px;
+
+}
+
+
+.about-grid h2 {
+
+    font-family: Georgia, serif;
+
+    font-size: clamp(50px, 6vw, 80px);
+
+    line-height: 0.95;
+
+    font-weight: 400;
+
+    letter-spacing: -3px;
+
+}
+
+
+.about-grid h2 em {
+
+    color: var(--brown);
+
+    font-style: italic;
+
+}
+
+
+.about-text {
+
+    padding-top: 10px;
+
+    color: var(--gray);
+
+    font-size: 14px;
+
+}
+
+
+.about-text p + p {
+
+    margin-top: 20px;
+
+}
+
+
+.text-link {
+
+    display: inline-block;
+
+    margin-top: 30px;
+
+    color: var(--black);
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    border-bottom: 1px solid var(--black);
+
+    transition: 0.3s;
+
+}
+
+
+.text-link:hover {
+
+    color: var(--brown);
+
+    border-color: var(--brown);
+
+}
+
+
+
+/* ==================================================
+   STUDIO SHOWCASE
+================================================== */
+
+.showcase {
+
+    padding: 0 5% 130px;
+
+}
+
+
+.showcase-image {
+
+    max-width: 1400px;
+
+    height: 600px;
+
+    margin: auto;
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+.showcase-image::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            to top,
+            rgba(0,0,0,0.75),
+            transparent 55%
+        );
+
+}
+
+
+.showcase-overlay {
+
+    position: absolute;
+
+    z-index: 2;
+
+    bottom: 45px;
+
+    left: 50px;
+
+    color: white;
+
+}
+
+
+.showcase-overlay p {
+
+    color: var(--gold);
+
+    font-size: 10px;
+
+    letter-spacing: 4px;
+
+}
+
+
+.showcase-overlay h3 {
+
+    margin-top: 8px;
+
+    font-family: Georgia, serif;
+
+    font-size: 38px;
+
+    font-weight: 400;
+
+    line-height: 1.05;
+
+}
+
+
+
+/* ==================================================
+   EQUIPMENT
+================================================== */
+
+.equipment {
+
+    background: var(--cream-light);
+
+    padding: 120px 7%;
+
+}
+
+
+.equipment-heading {
+
+    max-width: 1250px;
+
+    margin: auto;
+
+    margin-bottom: 75px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: end;
+
+}
+
+
+.equipment-heading h2 {
+
+    font-family: Georgia, serif;
+
+    font-size: clamp(50px, 6vw, 80px);
+
+    font-weight: 400;
+
+    line-height: 0.95;
+
+    letter-spacing: -3px;
+
+}
+
+
+.equipment-heading h2 em {
+
+    color: var(--brown);
+
+    font-style: italic;
+
+}
+
+
+.equipment-heading > p {
+
+    max-width: 300px;
+
+    color: var(--gray);
+
+    font-size: 14px;
+
+}
+
+
+
+/* ==================================================
+   EQUIPMENT CARDS
+================================================== */
+
+.equipment-card {
+
+    max-width: 1250px;
+
+    margin: 0 auto 70px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    min-height: 480px;
+
+    background: var(--cream);
+
+}
+
+
+.equipment-card.reverse {
+
+    direction: rtl;
+
+}
+
+
+.equipment-card.reverse .equipment-info {
+
+    direction: ltr;
+
+}
+
+
+
+/* NORMAL IMAGE */
+
+.equipment-image {
+
+    height: 480px;
+
+    overflow: hidden;
+
+}
+
+
+.equipment-image img {
+
+    transition: 0.5s;
+
+}
+
+
+.equipment-card:hover .equipment-image img {
+
+    transform: scale(1.04);
+
+}
+
+
+
+/* GUITAR GALLERY */
+
+.equipment-gallery {
+
+    height: 480px;
+
+    display: grid;
+
+    grid-template-columns: 1.5fr 0.8fr;
+
+    gap: 8px;
+
+    overflow: hidden;
+
+}
+
+
+.gallery-main,
+.gallery-small {
+
+    overflow: hidden;
+
+}
+
+
+.gallery-main img,
+.gallery-small img {
+
+    transition: 0.5s;
+
+}
+
+
+.equipment-card:hover
+.gallery-main img,
+.equipment-card:hover
+.gallery-small img {
+
+    transform: scale(1.04);
+
+}
+
+
+
+/* EQUIPMENT TEXT */
+
+.equipment-info {
+
+    padding: 65px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+}
+
+
+.equipment-number {
+
+    color: var(--brown);
+
+    font-family: Georgia, serif;
+
+    font-size: 18px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.equipment-info h3 {
+
+    font-family: Georgia, serif;
+
+    font-size: 42px;
+
+    font-weight: 400;
+
+    margin-bottom: 18px;
+
+}
+
+
+.equipment-info > p {
+
+    color: var(--gray);
+
+    font-size: 14px;
+
+    max-width: 400px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.equipment-info ul {
+
+    list-style: none;
+
+    color: #4f4a43;
+
+    font-size: 12px;
+
+}
+
+
+.equipment-info li {
+
+    padding: 7px 0;
+
+    border-bottom: 1px solid #ddd8cf;
+
+}
+
+
+.equipment-info li::before {
+
+    content: "— ";
+
+    color: var(--brown);
+
+}
+
+
+
+/* ==================================================
+   BOOKING
+================================================== */
+
+.booking {
+
+    background: var(--black);
+
+    color: var(--cream);
+
+    padding: 110px 10%;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 70px;
+
+}
+
+
+.booking-content {
+
+    max-width: 650px;
+
+}
+
+
+.booking h2 {
+
+    font-family: Georgia, serif;
+
+    font-size: clamp(50px, 6vw, 80px);
+
+    line-height: 0.95;
+
+    font-weight: 400;
+
+    letter-spacing: -3px;
+
+}
+
+
+.booking h2 em {
+
+    color: var(--gold);
+
+    font-style: italic;
+
+}
+
+
+.booking-content > p:last-child {
+
+    color: var(--gray-light);
+
+    max-width: 470px;
+
+    margin-top: 25px;
+
+    font-size: 14px;
+
+}
+
+
+
+/* BOOKING CARD */
+
+.booking-card {
+
+    min-width: 320px;
+
+    padding: 40px;
+
+    background: #242424;
+
+    border: 1px solid #393939;
+
+}
+
+
+.booking-label {
+
+    color: var(--gold);
+
+    font-size: 9px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.price {
+
+    font-family: Georgia, serif;
+
+    font-size: 48px;
+
+    margin-top: 15px;
+
+}
+
+
+.price span {
+
+    font-family: Arial, sans-serif;
+
+    color: var(--gray-light);
+
+    font-size: 12px;
+
+}
+
+
+.booking-details {
+
+    margin-top: 25px;
+
+    padding: 20px 0;
+
+    border-top: 1px solid #414141;
+
+    border-bottom: 1px solid #414141;
+
+}
+
+
+.booking-details div {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+}
+
+
+.booking-details div + div {
+
+    margin-top: 12px;
+
+}
+
+
+.booking-details strong {
+
+    font-size: 10px;
+
+}
+
+
+.booking-details span {
+
+    color: var(--gray-light);
+
+    font-size: 10px;
+
+}
+
+
+.booking-button {
+
+    width: 100%;
+
+    text-align: center;
+
+    margin-top: 25px;
+
+}
+
+
+.booking-card small {
+
+    display: block;
+
+    color: #888;
+
+    text-align: center;
+
+    margin-top: 15px;
+
+    font-size: 9px;
+
+}
+
+
+
+/* ==================================================
+   FOOTER
+================================================== */
+
+footer {
+
+    background: #111;
+
+    color: #aaa59c;
+
+    padding: 65px 7% 25px;
+
+}
+
+
+.footer-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+
+.footer-brand {
+
+    width: 100px;
+
+    height: 75px;
+
+}
+
+
+.footer-brand img {
+
+    object-fit: contain;
+
+}
+
+
+.footer-top > p {
+
+    font-family: Georgia, serif;
+
+    font-size: 20px;
+
+    font-style: italic;
+
+}
+
+
+.footer-bottom {
+
+    margin-top: 50px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #333;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 10px;
+
+    color: #777;
+
+}
+
+
+
+/* ==================================================
+   TABLET
+================================================== */
+
+@media (max-width: 900px) {
+
+
+        .booking {
+        padding: 90px 25px;
+    }
+
+    .booking-container {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-summary {
+        position: static;
+    }
+
+    .time-slots {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    .navbar {
+
+        padding: 18px 25px;
+
+    }
+
+
+    .nav-links {
+
+        display: none;
+
+    }
+
+
+    .hero {
+
+        grid-template-columns: 1fr;
+
+        padding: 70px 25px;
+
+        gap: 50px;
+
+    }
+
+
+    .hero-image {
+
+        height: 450px;
+
+    }
+
+
+    .about {
+
+        padding: 90px 25px;
+
+    }
+
+
+    .about-grid {
+
+        grid-template-columns: 1fr;
+
+        gap: 40px;
+
+    }
+
+
+    .showcase {
+
+        padding: 0 25px 90px;
+
+    }
+
+
+    .showcase-image {
+
+        height: 450px;
+
+    }
+
+
+    .equipment {
+
+        padding: 90px 25px;
+
+    }
+
+
+    .equipment-heading {
+
+        flex-direction: column;
+
+        align-items: start;
+
+        gap: 25px;
+
+    }
+
+
+    .equipment-card,
+    .equipment-card.reverse {
+
+        grid-template-columns: 1fr;
+
+        direction: ltr;
+
+    }
+
+
+    .equipment-image {
+
+        height: 350px;
+
+    }
+
+
+    .equipment-gallery {
+
+        height: 350px;
+
+    }
+
+
+    .equipment-info {
+
+        padding: 45px 30px;
+
+    }
+
+
+    .booking {
+
+        flex-direction: column;
+
+        align-items: start;
+
+        padding: 80px 25px;
+
+    }
+
+
+    .booking-card {
+
+        width: 100%;
+
+        min-width: 0;
+
+    }
+
+
+    .footer-top {
+
+        flex-direction: column;
+
+        align-items: start;
+
+        gap: 25px;
+
+    }
+
+
+    .footer-bottom {
+
+        flex-direction: column;
+
+        gap: 10px;
+
+    }
+
+}
+
+/* ==================================================
+   BOOKING FORM
+================================================== */
+
+.booking {
+    background: var(--black);
+    color: var(--cream);
+
+    padding: 120px 7%;
+}
+
+
+.booking-header {
+    max-width: 1250px;
+    margin: 0 auto 65px;
+}
+
+
+.booking-header h2 {
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: clamp(55px, 6vw, 85px);
+
+    font-weight: 400;
+
+    line-height: 0.92;
+
+    letter-spacing: -4px;
+}
+
+
+.booking-header h2 em {
+    color: var(--gold);
+    font-style: italic;
+}
+
+
+.booking-header > p:last-child {
+    color: var(--gray-light);
+
+    max-width: 450px;
+
+    margin-top: 25px;
+
+    font-size: 14px;
+}
+
+
+.booking-container {
+    max-width: 1250px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns: 1.4fr 0.7fr;
+
+    gap: 30px;
+
+    align-items: start;
+}
+
+
+/* FORM */
+
+.booking-form {
+    background: #222222;
+
+    border: 1px solid #363636;
+
+    padding: 45px;
+}
+
+
+.form-section + .form-section {
+    margin-top: 55px;
+
+    padding-top: 45px;
+
+    border-top: 1px solid #383838;
+}
+
+
+.form-label {
+    color: var(--gold);
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 35px;
+}
+
+
+.form-group {
+    margin-bottom: 28px;
+}
+
+
+.form-group label {
+    display: block;
+
+    color: #e5dfd5;
+
+    font-size: 12px;
+
+    margin-bottom: 10px;
+}
+
+
+.form-group label span {
+    color: #777;
+
+    font-size: 10px;
+}
+
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    padding: 15px 16px;
+
+    background: #191919;
+
+    border: 1px solid #414141;
+
+    color: var(--cream);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition: 0.3s;
+}
+
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--gold);
+}
+
+
+.form-group input::placeholder {
+    color: #777;
+}
+
+
+.form-group small {
+    display: block;
+
+    color: #777;
+
+    font-size: 10px;
+
+    margin-top: 7px;
+}
+
+
+.form-row {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 20px;
+}
+
+
+/* DATE INPUT */
+
+input[type="date"] {
+    color-scheme: dark;
+}
+
+
+/* TIME SLOTS */
+
+.time-slots {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 10px;
+}
+
+
+.time-slot {
+    padding: 13px 8px;
+
+    background: #191919;
+
+    border: 1px solid #3c3c3c;
+
+    color: #cfc9bf;
+
+    font-size: 10px;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+}
+
+
+.time-slot:hover {
+    border-color: var(--gold);
+
+    color: var(--gold);
+}
+
+
+.time-slot.selected {
+    background: var(--gold);
+
+    border-color: var(--gold);
+
+    color: var(--black);
+
+    font-weight: bold;
+}
+
+
+/* BOOKING SUMMARY */
+
+.booking-summary {
+    position: sticky;
+
+    top: 110px;
+
+    background: #242424;
+
+    border: 1px solid #3b3b3b;
+
+    padding: 35px;
+}
+
+
+.summary-label {
+    color: var(--gold);
+
+    font-size: 9px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 30px;
+}
+
+
+.summary-room {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding-bottom: 25px;
+
+    border-bottom: 1px solid #414141;
+}
+
+
+.summary-icon {
+    width: 45px;
+
+    height: 45px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid var(--gold);
+
+    color: var(--gold);
+
+    font-family: Georgia, serif;
+
+    font-size: 16px;
+}
+
+
+.summary-room h3 {
+    font-family: Georgia, serif;
+
+    font-size: 20px;
+
+    font-weight: 400;
+}
+
+
+.summary-room p {
+    color: #888;
+
+    font-size: 10px;
+
+    margin-top: 2px;
+}
+
+
+.summary-details {
+    padding: 25px 0;
+
+    border-bottom: 1px solid #414141;
+}
+
+
+.summary-details div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+
+.summary-details div + div {
+    margin-top: 18px;
+}
+
+
+.summary-details span,
+.summary-price span {
+    color: #888;
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+.summary-details strong {
+    color: #ddd8cf;
+
+    font-size: 12px;
+
+    font-weight: normal;
+}
+
+
+.summary-price {
+    padding: 25px 0;
+}
+
+
+.summary-price > div {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+
+.summary-price > div + div {
+    margin-top: 12px;
+}
+
+
+.summary-price strong {
+    font-size: 12px;
+
+    font-weight: normal;
+}
+
+
+.summary-price .total {
+    margin-top: 20px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #414141;
+}
+
+
+.summary-price .total strong {
+    color: var(--gold);
+
+    font-family: Georgia, serif;
+
+    font-size: 25px;
+}
+
+
+.confirm-button {
+    width: 100%;
+
+    border: none;
+
+    padding: 16px;
+
+    background: var(--gold);
+
+    color: var(--black);
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+
+.confirm-button:hover {
+    background: var(--gold-light);
+
+    transform: translateY(-2px);
+}
+
+
+.booking-note {
+    color: #777;
+
+    text-align: center;
+
+    font-size: 9px;
+
+    line-height: 1.5;
+
+    margin-top: 15px;
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 500px) {
+
+    
+         .booking-form {
+        padding: 30px 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .time-slots {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .booking-summary {
+        padding: 25px 20px;
+    }
+
+    .nav-button {
+
+        display: none;
+
+    }
+
+
+    .hero h1 {
+
+        font-size: 60px;
+
+    }
+
+
+    .hero-buttons {
+
+        flex-direction: column;
+
+        align-items: start;
+
+    }
+
+
+    .hero-details {
+
+        gap: 20px;
+
+        flex-wrap: wrap;
+
+    }
+
+
+    .hero-image {
+
+        height: 350px;
+
+    }
+
+
+    .showcase-image {
+
+        height: 350px;
+
+    }
+
+
+    .equipment-info h3 {
+
+        font-size: 34px;
+
+    }
+
+
+    .equipment-gallery {
+
+        grid-template-columns: 1fr;
+
+        height: 500px;
+
+    }
+
+
+    .gallery-small {
+
+        display: none;
+
+    }
+
+
+    .booking h2 {
+
+        font-size: 50px;
+
+    }
+
+}
