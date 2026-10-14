@@ -1909,3 +1909,26 @@ input[type="date"] {
     }
 
 }
+
+
+/* Booking page improvements */
+
+.availability-message {
+    color: #c6a56a;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+.time-slot:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.booking-home-link {
+    margin-bottom: 25px;
+}
+
+.confirm-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
