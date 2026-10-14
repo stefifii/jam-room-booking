@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zote Jam Room | Admin</title>
+  <link rel="stylesheet" href="admin.css">
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">Z</span>
+      <span>ZOTE <small>JAM ROOM</small></span>
+    </a>
+    <div class="header-right">
+      <span class="admin-label">ADMIN PORTAL</span>
+      <button id="logout-button" class="button button-outline hidden"
+        type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section id="login-section" class="login-card">
+      <p class="eyebrow">RESTRICTED ACCESS</p>
+      <h1>Welcome back.</h1>
+      <p class="muted">Sign in to manage studio bookings.</p>
+
+      <form id="login-form">
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username"
+          required maxlength="100">
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password"
+          autocomplete="current-password" required>
+
+        <p id="login-error" class="error-message" role="alert"></p>
+        <button class="button button-primary full-width" type="submit">
+          Sign in
+        </button>
+      </form>
+      <p class="login-note">Zote Jam Room · Management portal</p>
+    </section>
+
+    <section id="dashboard-section" class="hidden">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">STUDIO MANAGEMENT</p>
+          <h1>Dashboard<span class="gold-dot">.</span></h1>
+          <p class="muted">Your bookings, all in one place.</p>
+        </div>
+        <button id="refresh-button" class="button button-outline"
+          type="button">↻ Refresh</button>
+      </div>
+
+      <p id="dashboard-message" class="message" role="status"></p>
+
+      <div class="stats-grid">
+        <article class="stat-card">
+          <span class="stat-label">TOTAL BOOKINGS</span>
+          <strong id="total-bookings">—</strong>
+          <span class="stat-foot">All recorded bookings</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">PENDING</span>
+          <strong id="pending-bookings">—</strong>
+          <span class="stat-foot">Awaiting confirmation</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">CONFIRMED</span>
+          <strong id="confirmed-bookings">—</strong>
+          <span class="stat-foot">Approved bookings</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">UPCOMING</span>
+          <strong id="upcoming-bookings">—</strong>
+          <span class="stat-foot">Active bookings from today</span>
+        </article>
+      </div>
+
+      <section class="booking-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">RESERVATIONS</p>
+            <h2>Manage bookings</h2>
+          </div>
+          <span id="booking-count" class="count-pill">0 bookings</span>
+        </div>
+
+        <div class="toolbar">
+          <input id="search-input" type="search"
+            placeholder="Search name, phone or booking ID..."
+            aria-label="Search bookings">
+          <select id="status-filter" aria-label="Filter by status">
+            <option value="all">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div id="empty-state" class="empty-state hidden">
+          <span class="empty-icon">♪</span>
+          <h3>No bookings found</h3>
+          <p class="muted">Try changing your search or filter.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>BOOKING</th>
+                <th>CUSTOMER</th>
+                <th>DATE & TIME</th>
+                <th>MEMBERS</th>
+                <th>AMOUNT</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="booking-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <p class="footer-note">
+        Zote Jam Room · Studio administration
+      </p>
+    </section>
+  </main>
+</body>
+</html>
