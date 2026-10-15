@@ -124,6 +124,7 @@ async function loadBookings() {
   renderBookings();
 }
 
+
 function renderBookings() {
   const searchTerm = searchInput.value.trim().toLowerCase();
   const selectedStatus = statusFilter.value;
@@ -135,14 +136,24 @@ function renderBookings() {
       booking.phone,
       booking.booking_date,
       booking.time_slot
-    ].some(value => String(value ?? "").toLowerCase().includes(searchTerm));
+    ].some(value =>
+      String(value ?? "").toLowerCase().includes(searchTerm)
+    );
+
+    const bookingStatus = String(booking.status || "").toLowerCase();
 
     const matchesStatus =
       selectedStatus === "all" ||
-      String(booking.status).toLowerCase() === selectedStatus;
+      (selectedStatus === "pending" &&
+        ["pending", "pending_payment"].includes(bookingStatus)) ||
+      bookingStatus === selectedStatus;
 
     return matchesSearch && matchesStatus;
   });
+
+  console.log("Admin bookings:", bookings.length);
+  console.log("Selected filter:", selectedStatus);
+  console.log("Filtered bookings:", filteredBookings.length);
 
   document.getElementById("booking-count").textContent =
     `${filteredBookings.length} booking${filteredBookings.length === 1 ? "" : "s"}`;
@@ -153,7 +164,8 @@ function renderBookings() {
   for (const booking of filteredBookings) {
     const status = String(booking.status || "pending").toLowerCase();
 
-    const actionButtons = status === "pending"
+    const actionButtons = status === "pending" ||
+      status === "pending_payment"
       ? `
         <button class="button button-primary" data-action="confirmed"
           data-id="${Number(booking.booking_id)}">Confirm</button>
@@ -169,31 +181,45 @@ function renderBookings() {
 
     const row = document.createElement("tr");
 
-    row.innerHTML = `
-      <td>
-        <span class="booking-id">#${Number(booking.booking_id)}</span>
-      </td>
-      <td>
-        <div class="customer-name">${escapeHTML(booking.customer_name)}</div>
-        <div class="customer-phone">${escapeHTML(booking.phone)}</div>
-      </td>
-      <td>
-        <div class="date-text">${escapeHTML(formatDate(booking.booking_date))}</div>
-        <div class="time-text">${escapeHTML(booking.time_slot)}</div>
-      </td>
-      <td>${Number(booking.members)}</td>
-      <td>${escapeHTML(formatMoney(booking.total_amount))}</td>
-      <td>
-        <span class="status status-${escapeHTML(status)}">
-          ${escapeHTML(status)}
-        </span>
-      </td>
-      <td><div class="actions">${actionButtons}</div></td>
-    `;
+    
+row.innerHTML = `
+  <td>
+    <span class="booking-id">#${Number(booking.booking_id)}</span>
+  </td>
+  <td>
+    <div class="customer-name">${escapeHTML(booking.customer_name)}</div>
+    <div class="customer-phone">${escapeHTML(booking.phone)}</div>
+  </td>
+  <td>
+    <div class="date-text">${escapeHTML(formatDate(booking.booking_date))}</div>
+    <div class="time-text">${escapeHTML(booking.time_slot)}</div>
+  </td>
+  <td>${Number(booking.members)}</td>
+  <td>${escapeHTML(formatMoney(booking.total_amount))}</td>
+  <td>
+    <span class="status status-${escapeHTML(status)}">
+      ${escapeHTML(status.replaceAll("_", " "))}
+    </span>
+  </td>
+  <td>
+    <span class="status status-${escapeHTML(
+      String(booking.payment_status || "unknown").toLowerCase()
+    )}">
+      ${escapeHTML(
+        String(booking.payment_status || "unknown")
+          .replaceAll("_", " ")
+          .toUpperCase()
+      )}
+    </span>
+  </td>
+  <td><div class="actions">${actionButtons}</div></td>
+`;
+
 
     tableBody.appendChild(row);
   }
 }
+
 
 async function refreshDashboard() {
   if (isLoading) return;

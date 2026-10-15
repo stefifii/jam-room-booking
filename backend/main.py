@@ -955,3 +955,155 @@ def update_booking_status(
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
+
+
+# --------------------------------------------------
+# CUSTOMER FEEDBACK
+# --------------------------------------------------
+
+class FeedbackRequest(BaseModel):
+    booking_id: int = Field(gt=0)
+    rating: int = Field(ge=1, le=5)
+    comment: str = Field(default="", max_length=2000)
+
+
+@app.post("/feedback")
+def submit_feedback(feedback: FeedbackRequest):
+    connection = None
+    cursor = None
+
+    try:
+        connection = get_db_connection()
+        connection.start_transaction()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT b.Booking_ID, b.Status, b.Booking_Date,
+                   p.Payment_Status
+            FROM BOOKING b
+            LEFT JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
+            WHERE b.Booking_ID = %s
+            FOR UPDATE
+            """,
+            (feedback.booking_id,),
+        )
+
+        booking = cursor.fetchone()
+
+        if not booking:
+            raise HTTPException(404, "Booking not found.")
+
+        if (
+            booking["Status"] != "confirmed"
+            or booking["Payment_Status"] != "paid"
+        ):
+            raise HTTPException(
+                400,
+                "Feedback is only allowed for confirmed, paid bookings.",
+            )
+
+        if booking["Booking_Date"] >= date.today():
+            raise HTTPException(
+                400,
+                "Feedback can only be submitted after the booking date.",
+            )
+
+        cursor.execute(
+            """
+            INSERT INTO FEEDBACK
+                (Booking_ID, Rating, Comment, Feedback_Date)
+            VALUES (%s, %s, %s, NOW())
+            """,
+            (
+                feedback.booking_id,
+                feedback.rating,
+                feedback.comment.strip(),
+            ),
+        )
+
+        connection.commit()
+
+        return {
+            "message": "Thank you for your feedback!",
+            "booking_id": feedback.booking_id,
+        }
+
+    except HTTPException:
+        if connection and connection.is_connected():
+            connection.rollback()
+        raise
+
+    except mysql.connector.IntegrityError as exc:
+        if connection and connection.is_connected():
+            connection.rollback()
+
+        if getattr(exc, "errno", None) == 1062:
+            raise HTTPException(
+                409,
+                "Feedback has already been submitted for this booking.",
+            )
+
+        raise HTTPException(500, "Could not save feedback.")
+
+    except mysql.connector.Error:
+        if connection and connection.is_connected():
+            connection.rollback()
+        raise HTTPException(500, "Could not save feedback.")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+
+
+@app.get("/admin/feedback")
+def get_feedback(_: bool = Depends(verify_admin)):
+    connection = None
+    cursor = None
+
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT
+                f.Feedback_ID AS feedback_id,
+                f.Booking_ID AS booking_id,
+                f.Rating AS rating,
+                f.Comment AS comment,
+                f.Feedback_Date AS feedback_date,
+                c.Name AS customer_name
+            FROM FEEDBACK f
+            JOIN BOOKING b ON b.Booking_ID = f.Booking_ID
+            JOIN CUSTOMER c ON c.Customer_ID = b.Customer_ID
+            ORDER BY f.Feedback_Date DESC
+            """
+        )
+
+        rows = cursor.fetchall()
+
+        return {
+            "feedback": [
+                {
+                    **row,
+                    "feedback_date": (
+                        row["feedback_date"].isoformat()
+                        if row["feedback_date"]
+                        else None
+                    ),
+                }
+                for row in rows
+            ]
+        }
+
+    except mysql.connector.Error:
+        raise HTTPException(500, "Could not retrieve feedback.")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
