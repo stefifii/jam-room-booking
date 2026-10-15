@@ -967,6 +967,7 @@ class FeedbackRequest(BaseModel):
     comment: str = Field(default="", max_length=2000)
 
 
+
 @app.post("/feedback")
 def submit_feedback(feedback: FeedbackRequest):
     connection = None
@@ -979,11 +980,15 @@ def submit_feedback(feedback: FeedbackRequest):
 
         cursor.execute(
             """
-            SELECT b.Booking_ID, b.Status, b.Booking_Date,
-                   p.Payment_Status
-            FROM BOOKING b
-            LEFT JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
-            WHERE b.Booking_ID = %s
+            SELECT
+                b.booking_id,
+                b.status,
+                b.booking_date,
+                p.Payment_Status AS payment_status
+            FROM BOOKINGS b
+            LEFT JOIN PAYMENT p
+                ON p.Booking_ID = b.booking_id
+            WHERE b.booking_id = %s
             FOR UPDATE
             """,
             (feedback.booking_id,),
@@ -995,15 +1000,15 @@ def submit_feedback(feedback: FeedbackRequest):
             raise HTTPException(404, "Booking not found.")
 
         if (
-            booking["Status"] != "confirmed"
-            or booking["Payment_Status"] != "paid"
+            booking["status"] != "confirmed"
+            or booking["payment_status"] != "paid"
         ):
             raise HTTPException(
                 400,
                 "Feedback is only allowed for confirmed, paid bookings.",
             )
 
-        if booking["Booking_Date"] >= date.today():
+        if booking["booking_date"] >= date.today():
             raise HTTPException(
                 400,
                 "Feedback can only be submitted after the booking date.",
@@ -1018,7 +1023,7 @@ def submit_feedback(feedback: FeedbackRequest):
             (
                 feedback.booking_id,
                 feedback.rating,
-                feedback.comment.strip(),
+                feedback.comment.strip() if feedback.comment else None,
             ),
         )
 
@@ -1058,6 +1063,8 @@ def submit_feedback(feedback: FeedbackRequest):
             connection.close()
 
 
+
+
 @app.get("/admin/feedback")
 def get_feedback(_: bool = Depends(verify_admin)):
     connection = None
@@ -1075,10 +1082,10 @@ def get_feedback(_: bool = Depends(verify_admin)):
                 f.Rating AS rating,
                 f.Comment AS comment,
                 f.Feedback_Date AS feedback_date,
-                c.Name AS customer_name
+                b.name AS customer_name
             FROM FEEDBACK f
-            JOIN BOOKING b ON b.Booking_ID = f.Booking_ID
-            JOIN CUSTOMER c ON c.Customer_ID = b.Customer_ID
+            JOIN BOOKINGS b
+                ON b.booking_id = f.Booking_ID
             ORDER BY f.Feedback_Date DESC
             """
         )
@@ -1107,3 +1114,4 @@ def get_feedback(_: bool = Depends(verify_admin)):
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
+

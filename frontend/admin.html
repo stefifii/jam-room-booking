@@ -131,6 +131,47 @@
       <p class="footer-note">
         Zote Jam Room · Studio administration
       </p>
+
+      
+      <section class="booking-panel feedback-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">CUSTOMER REVIEWS</p>
+            <h2>Feedback</h2>
+          </div>
+          <button id="refresh-feedback-button"
+            class="button button-outline" type="button">
+            ↻ Refresh feedback
+          </button>
+        </div>
+
+        <p id="feedback-message" class="message" role="status"></p>
+
+        <div id="feedback-empty-state" class="empty-state hidden">
+          <span class="empty-icon">★</span>
+          <h3>No feedback yet</h3>
+          <p class="muted">
+            Customer ratings and comments will appear here.
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>FEEDBACK</th>
+                <th>CUSTOMER</th>
+                <th>BOOKING ID</th>
+                <th>RATING</th>
+                <th>COMMENT</th>
+                <th>SUBMITTED</th>
+              </tr>
+            </thead>
+            <tbody id="feedback-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
     </section>
   </main>
 </body>

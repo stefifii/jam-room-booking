@@ -346,3 +346,23 @@ tbody tr:hover { background: #20211d; }
   .toolbar { flex-direction: column; }
   .toolbar select { width: 100%; }
 }
+
+
+.feedback-panel {
+  margin-top: 28px;
+}
+
+.feedback-stars {
+  color: #c6a96b;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.feedback-comment {
+  min-width: 200px;
+  max-width: 360px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+

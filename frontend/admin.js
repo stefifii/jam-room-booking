@@ -275,8 +275,13 @@ loginForm.addEventListener("submit", async event => {
       stats.upcoming_bookings;
 
     showDashboard();
-    await loadBookings();
-    setMessage("Signed in successfully.", "success");
+
+     await Promise.all([
+     loadBookings(),
+     loadFeedback()
+    ]);
+
+setMessage("Signed in successfully.", "success");
   } catch (error) {
     adminCredentials = "";
     sessionStorage.removeItem("zoteAdminCredentials");
@@ -339,7 +344,11 @@ async function restoreSession() {
   try {
     await apiRequest("/admin/stats");
     showDashboard();
-    await refreshDashboard();
+
+     await Promise.all([
+     refreshDashboard(),
+     loadFeedback()
+    ]);
   } catch {
     adminCredentials = "";
     sessionStorage.removeItem("zoteAdminCredentials");
@@ -348,3 +357,83 @@ async function restoreSession() {
 }
 
 restoreSession();
+
+
+const feedbackTableBody = document.getElementById("feedback-table-body");
+const feedbackEmptyState = document.getElementById("feedback-empty-state");
+const feedbackMessage = document.getElementById("feedback-message");
+const refreshFeedbackButton = document.getElementById("refresh-feedback-button");
+
+function formatFeedbackDate(dateString) {
+  if (!dateString) return "—";
+
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return date.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+async function loadFeedback() {
+  if (!feedbackTableBody) return;
+
+  refreshFeedbackButton.disabled = true;
+  feedbackMessage.textContent = "Loading feedback...";
+  feedbackMessage.className = "message";
+
+  try {
+    const result = await apiRequest("/admin/feedback");
+    const feedbackList = result.feedback || [];
+
+    feedbackTableBody.innerHTML = "";
+
+    feedbackEmptyState.classList.toggle(
+      "hidden",
+      feedbackList.length !== 0
+    );
+
+    for (const item of feedbackList) {
+      const row = document.createElement("tr");
+      const rating = Math.max(0, Math.min(5, Number(item.rating) || 0));
+
+      row.innerHTML = `
+        <td>#${Number(item.feedback_id)}</td>
+        <td>${escapeHTML(item.customer_name)}</td>
+        <td>#${Number(item.booking_id)}</td>
+        <td>
+          <span class="feedback-stars">
+            ${"★".repeat(rating)}${"☆".repeat(5 - rating)}
+          </span>
+          <span>${rating}/5</span>
+        </td>
+        <td class="feedback-comment">
+          ${escapeHTML(item.comment || "No comment provided")}
+        </td>
+        <td>${escapeHTML(formatFeedbackDate(item.feedback_date))}</td>
+      `;
+
+      feedbackTableBody.appendChild(row);
+    }
+
+    feedbackMessage.textContent =
+      `${feedbackList.length} feedback submission${feedbackList.length === 1 ? "" : "s"} found.`;
+
+    feedbackMessage.className = "message success";
+  } catch (error) {
+    feedbackMessage.textContent = error.message;
+    feedbackMessage.className = "message error";
+  } finally {
+    refreshFeedbackButton.disabled = false;
+  }
+}
+
+if (refreshFeedbackButton) {
+  refreshFeedbackButton.addEventListener("click", loadFeedback);
+}
+
