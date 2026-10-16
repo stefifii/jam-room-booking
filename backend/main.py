@@ -1,4 +1,3 @@
-
 import os
 import hmac
 import hashlib
@@ -6,27 +5,30 @@ import secrets
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from typing import Literal
-
+from pathlib import Path
+from typing import Literal
 import mysql.connector
 import razorpay
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field
-
-
+ 
+ 
 # --------------------------------------------------
 # CONFIGURATION
 # --------------------------------------------------
-
-load_dotenv()
-
+ 
+from pathlib import Path
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env", override=True)
+ 
 app = FastAPI(title="Zote Jam Room API")
-
+ 
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
-
+RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
+ 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -37,8 +39,8 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
-
-
+ 
+ 
 def get_db_connection():
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "127.0.0.1"),
@@ -47,36 +49,38 @@ def get_db_connection():
         password=os.getenv("DB_PASSWORD", ""),
         database=os.getenv("DB_NAME", "zote_jam_room"),
     )
-
-
+ 
+ 
 def get_razorpay_client():
     if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
         raise HTTPException(
             status_code=503,
             detail="Payment gateway is not configured.",
         )
-
+    print("Razorpay Key ID:", RAZORPAY_KEY_ID[:12] if RAZORPAY_KEY_ID else "MISSING")
+    print("Razorpay Test Mode:", RAZORPAY_KEY_ID.startswith("rzp_test_") if RAZORPAY_KEY_ID else False) 
+ 
     return razorpay.Client(
         auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET)
     )
-
-
+ 
+ 
 # --------------------------------------------------
 # HOME
 # --------------------------------------------------
-
+ 
 @app.get("/")
 def home():
     return {
         "message": "Welcome to Zote Jam Room API!",
         "status": "running",
     }
-
-
+ 
+ 
 # --------------------------------------------------
 # TIME SLOTS
 # --------------------------------------------------
-
+ 
 TIME_SLOTS = {
     "11 AM – 12 PM": (time(11, 0), time(12, 0)),
     "12 PM – 1 PM": (time(12, 0), time(13, 0)),
@@ -92,29 +96,29 @@ TIME_SLOTS = {
     "10 PM – 11 PM": (time(22, 0), time(23, 0)),
     "11 PM – 12 AM": (time(23, 0), time(0, 0)),
 }
-
-
+ 
+ 
 def normalize_mysql_time(value):
     if isinstance(value, timedelta):
         return (datetime.min + value).time()
     return value
-
-
+ 
+ 
 def format_time_slot(start, end):
     start = normalize_mysql_time(start)
     end = normalize_mysql_time(end)
-
+ 
     for label, times in TIME_SLOTS.items():
         if times == (start, end):
             return label
-
+ 
     return f"{start.strftime('%I %p')} – {end.strftime('%I %p')}"
-
-
+ 
+ 
 # --------------------------------------------------
 # REQUEST MODELS
 # --------------------------------------------------
-
+ 
 class BookingRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     phone: str = Field(pattern=r"^[6-9]\d{9}$")
@@ -122,29 +126,29 @@ class BookingRequest(BaseModel):
     time_slot: str
     members: int = Field(ge=1, le=8)
     band: str = Field(default="", max_length=100)
-
-
+ 
+ 
 class PaymentVerification(BaseModel):
     booking_id: int
     razorpay_order_id: str
     razorpay_payment_id: str
     razorpay_signature: str
-
-
+ 
+ 
 class PaymentCancellation(BaseModel):
     booking_id: int
     razorpay_order_id: str
-
-
+ 
+ 
 class AdminStatusUpdate(BaseModel):
     status: Literal["confirmed", "cancelled"]
-
-
+ 
+ 
 # --------------------------------------------------
 # AVAILABILITY
 # --------------------------------------------------
-
-
+ 
+ 
 @app.get("/availability")
 def get_availability(booking_date: date):
     if booking_date < date.today():
@@ -152,7 +156,7 @@ def get_availability(booking_date: date):
             status_code=400,
             detail="Please select today or a future date.",
         )
-
+ 
     # Studio is closed on Sundays
     if booking_date.weekday() == 6:
         return {
@@ -160,14 +164,14 @@ def get_availability(booking_date: date):
             "closed": True,
             "slots": [],
         }
-
+ 
     connection = None
     cursor = None
-
+ 
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
-
+ 
         # Find the studio room
         cursor.execute(
             """
@@ -178,15 +182,15 @@ def get_availability(booking_date: date):
             """,
             ("Zote Jam Room",),
         )
-
+ 
         room = cursor.fetchone()
-
+ 
         if not room:
             raise HTTPException(
                 status_code=500,
                 detail="Studio room has not been configured.",
             )
-
+ 
         # Only confirmed bookings and active payment holds
         # should make a slot unavailable.
         # Cancelled bookings must not block slots.
@@ -209,11 +213,11 @@ def get_availability(booking_date: date):
             """,
             (room["Room_ID"], booking_date),
         )
-
+ 
         booked_ids = {
             row["Slot_ID"] for row in cursor.fetchall()
         }
-
+ 
         # Retrieve all available time slots
         cursor.execute(
             """
@@ -222,15 +226,15 @@ def get_availability(booking_date: date):
             ORDER BY Start_Time
             """
         )
-
+ 
         database_slots = cursor.fetchall()
-
+ 
         slots = []
-
+ 
         for slot in database_slots:
             start = normalize_mysql_time(slot["Start_Time"])
             end = normalize_mysql_time(slot["End_Time"])
-
+ 
             slots.append(
                 {
                     "slot_id": slot["Slot_ID"],
@@ -238,55 +242,55 @@ def get_availability(booking_date: date):
                     "available": slot["Slot_ID"] not in booked_ids,
                 }
             )
-
+ 
         return {
             "booking_date": booking_date.isoformat(),
             "closed": False,
             "slots": slots,
         }
-
+ 
     except HTTPException:
         raise
-
+ 
     except mysql.connector.Error:
         raise HTTPException(
             status_code=500,
             detail="Could not retrieve availability from the database.",
         )
-
+ 
     finally:
         if cursor:
             cursor.close()
-
+ 
         if connection and connection.is_connected():
             connection.close()
-
-
-
+ 
+ 
+ 
 # --------------------------------------------------
 # CREATE RAZORPAY ORDER AND TEMPORARY BOOKING
 # --------------------------------------------------
-
+ 
 @app.post("/payments/create-order")
 def create_payment_order(booking: BookingRequest):
     if booking.booking_date < date.today():
         raise HTTPException(400, "You cannot book a date in the past.")
-
+ 
     if booking.booking_date.weekday() == 6:
         raise HTTPException(400, "Zote Jam Room is closed on Sundays.")
-
+ 
     if booking.time_slot not in TIME_SLOTS:
         raise HTTPException(400, "Please select a valid one-hour time slot.")
-
+ 
     client = get_razorpay_client()
     connection = None
     cursor = None
-
+ 
     try:
         connection = get_db_connection()
         connection.start_transaction()
         cursor = connection.cursor(dictionary=True)
-
+ 
         # Serialize booking attempts for this room.
         cursor.execute(
             """
@@ -299,18 +303,18 @@ def create_payment_order(booking: BookingRequest):
             ("Zote Jam Room",),
         )
         room = cursor.fetchone()
-
+ 
         if not room:
             raise HTTPException(500, "Studio room has not been configured.")
-
+ 
         if booking.members > room["Capacity"]:
             raise HTTPException(
                 400,
                 "The number of people exceeds room capacity.",
             )
-
+ 
         start_time, end_time = TIME_SLOTS[booking.time_slot]
-
+ 
         cursor.execute(
             """
             SELECT Slot_ID
@@ -321,13 +325,13 @@ def create_payment_order(booking: BookingRequest):
             (start_time, end_time),
         )
         slot = cursor.fetchone()
-
+ 
         if not slot:
             raise HTTPException(
                 500,
                 "The selected time slot is not configured.",
             )
-
+ 
         # Recheck availability while the room row is locked.
         cursor.execute(
             """
@@ -338,21 +342,24 @@ def create_payment_order(booking: BookingRequest):
               AND b.Booking_Date = %s
               AND bs.Slot_ID = %s
               AND (
-                  b.Status NOT IN ('cancelled', 'pending_payment')
-                  OR b.Payment_Expires_At IS NULL
-                  OR b.Payment_Expires_At > NOW()
+                  b.Status = 'confirmed'
+                  OR (
+                      b.Status = 'pending_payment'
+                      AND b.Payment_Expires_At IS NOT NULL
+                      AND b.Payment_Expires_At > NOW()
+                  )
               )
             LIMIT 1
             """,
             (room["Room_ID"], booking.booking_date, slot["Slot_ID"]),
         )
-
+ 
         if cursor.fetchone():
             raise HTTPException(
                 409,
                 "This time slot is already booked. Please choose another.",
             )
-
+ 
         # Find or create the customer.
         cursor.execute(
             """
@@ -364,17 +371,9 @@ def create_payment_order(booking: BookingRequest):
             (booking.phone,),
         )
         customer = cursor.fetchone()
-
+ 
         if customer:
             customer_id = customer["Customer_ID"]
-            cursor.execute(
-                """
-                UPDATE CUSTOMER
-                SET Name = %s
-                WHERE Customer_ID = %s
-                """,
-                (booking.name.strip(), customer_id),
-            )
         else:
             cursor.execute(
                 """
@@ -384,18 +383,18 @@ def create_payment_order(booking: BookingRequest):
                 (booking.name.strip(), booking.phone),
             )
             customer_id = cursor.lastrowid
-
+ 
         amount = Decimal(str(room["Hourly_Rate"])).quantize(
             Decimal("0.01")
         )
         amount_paise = int(amount * 100)
-
+ 
         cursor.execute(
             """
             INSERT INTO BOOKING
                 (Booking_Date, Total_Amount, Status, Customer_ID,
-                 Room_ID, Members, Payment_Expires_At)
-            VALUES (%s, %s, %s, %s, %s, %s,
+                 Customer_Name, Room_ID, Members, Payment_Expires_At)
+            VALUES (%s, %s, %s, %s, %s, %s, %s,
                     DATE_ADD(NOW(), INTERVAL 15 MINUTE))
             """,
             (
@@ -403,12 +402,13 @@ def create_payment_order(booking: BookingRequest):
                 amount,
                 "pending_payment",
                 customer_id,
+                booking.name.strip(),
                 room["Room_ID"],
                 booking.members,
             ),
         )
         booking_id = cursor.lastrowid
-
+ 
         cursor.execute(
             """
             INSERT INTO BOOKING_SLOT (Booking_ID, Slot_ID)
@@ -416,7 +416,7 @@ def create_payment_order(booking: BookingRequest):
             """,
             (booking_id, slot["Slot_ID"]),
         )
-
+ 
         # The amount is calculated on the server, not supplied by the browser.
         order = client.order.create(
             data={
@@ -426,7 +426,7 @@ def create_payment_order(booking: BookingRequest):
                 "notes": {"booking_id": str(booking_id)},
             }
         )
-
+ 
         cursor.execute(
             """
             INSERT INTO PAYMENT
@@ -436,9 +436,9 @@ def create_payment_order(booking: BookingRequest):
             """,
             (booking_id, amount, "Razorpay", "pending", order["id"]),
         )
-
+ 
         connection.commit()
-
+ 
         return {
             "booking_id": booking_id,
             "order_id": order["id"],
@@ -451,7 +451,7 @@ def create_payment_order(booking: BookingRequest):
             "customer_name": booking.name.strip(),
             "phone": booking.phone,
         }
-
+ 
     except HTTPException:
         if connection and connection.is_connected():
             connection.rollback()
@@ -469,150 +469,152 @@ def create_payment_order(booking: BookingRequest):
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
-
-
+ 
+ 
 # --------------------------------------------------
-# VERIFY PAYMENT SIGNATURE
+# PAYMENT RECONCILIATION HELPERS
 # --------------------------------------------------
+def _payment_matches_booking(payment_entity, booking_id, order_id, expected_amount_paise):
+    """Validate gateway payment details against the server-side booking/order."""
+    try:
+        return (
+            str(payment_entity.get("order_id") or "") == str(order_id)
+            and int(payment_entity.get("amount", -1)) == int(expected_amount_paise)
+            and str(payment_entity.get("currency") or "").upper() == "INR"
+            and str(payment_entity.get("status") or "").lower() == "captured"
+        )
+    except (TypeError, ValueError):
+        return False
 
-@app.post("/payments/verify")
-def verify_payment(payment: PaymentVerification):
-    if not RAZORPAY_KEY_SECRET:
-        raise HTTPException(503, "Payment gateway is not configured.")
 
-    message = (
-        f"{payment.razorpay_order_id}|{payment.razorpay_payment_id}"
-    ).encode("utf-8")
+def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, currency):
+    """Record a captured payment; only confirm if its slot is still safe to allocate.
 
-    expected_signature = hmac.new(
-        RAZORPAY_KEY_SECRET.encode("utf-8"),
-        message,
-        hashlib.sha256,
-    ).hexdigest()
-
-    if not hmac.compare_digest(
-        expected_signature,
-        payment.razorpay_signature,
-    ):
-        raise HTTPException(400, "Payment signature verification failed.")
-
+    If the hold expired, the booking was cancelled, or the slot has since been taken,
+    the payment is still recorded as paid but the booking is not confirmed. That case
+    needs studio review/refund rather than silently double-booking the slot.
+    """
     connection = None
     cursor = None
-
     try:
         connection = get_db_connection()
         connection.start_transaction()
         cursor = connection.cursor(dictionary=True)
 
+        # Read the room ID, then take the same room lock used during order creation.
+        cursor.execute("SELECT Room_ID FROM BOOKING WHERE Booking_ID = %s", (booking_id,))
+        initial = cursor.fetchone()
+        if not initial:
+            raise HTTPException(404, "Booking not found for this payment.")
+
+        cursor.execute(
+            "SELECT Room_ID FROM ROOM WHERE Room_ID = %s FOR UPDATE",
+            (initial["Room_ID"],),
+        )
+        if not cursor.fetchone():
+            raise HTTPException(500, "The room linked to this booking was not found.")
+
         cursor.execute(
             """
-            SELECT
-                b.Booking_ID,
-                b.Status AS booking_status,
-                b.Payment_Expires_At,
-                p.Payment_Status,
-                p.Razorpay_Order_ID
+            SELECT b.Booking_ID, b.Room_ID, b.Booking_Date, b.Status AS booking_status,
+                   b.Payment_Expires_At, b.Total_Amount, p.Payment_Status,
+                   p.Razorpay_Order_ID, p.Transaction_ID
             FROM BOOKING b
             JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
             WHERE b.Booking_ID = %s
             FOR UPDATE
             """,
-            (payment.booking_id,),
+            (booking_id,),
         )
         row = cursor.fetchone()
-
         if not row:
             raise HTTPException(404, "Booking or payment record not found.")
-
-        if row["Razorpay_Order_ID"] != payment.razorpay_order_id:
+        if str(row["Razorpay_Order_ID"] or "") != str(order_id):
             raise HTTPException(400, "Payment order does not match this booking.")
+        expected_amount = int(Decimal(str(row["Total_Amount"])).quantize(Decimal("0.01")) * 100)
+        if int(amount_paise) != expected_amount or str(currency).upper() != "INR":
+            raise HTTPException(400, "Payment amount or currency does not match this booking.")
 
-        if (
-            row["Payment_Status"] == "paid"
-            and row["booking_status"] == "confirmed"
-        ):
+        # Repeated checkout callbacks/webhooks are safe and idempotent.
+        if row["Payment_Status"] == "paid" and row["booking_status"] == "confirmed":
             connection.commit()
-            return {
-                "message": "Payment already verified.",
-                "booking_id": payment.booking_id,
-                "status": "confirmed",
-            }
-
-        if row["booking_status"] != "pending_payment":
-            raise HTTPException(
-                409,
-                "This booking is no longer awaiting payment.",
-            )
-
-        # Confirm only if the temporary hold is still valid.
-        cursor.execute(
-            """
-            SELECT Payment_Expires_At > NOW() AS hold_valid
-            FROM BOOKING
-            WHERE Booking_ID = %s
-            """,
-            (payment.booking_id,),
-        )
-        hold = cursor.fetchone()
-
-        if not hold or not hold["hold_valid"]:
-            raise HTTPException(
-                409,
-                "The payment hold has expired. Contact the studio before retrying.",
-            )
+            return {"booking_id": booking_id, "status": "confirmed", "payment_status": "paid"}
 
         cursor.execute(
             """
             UPDATE PAYMENT
-            SET Payment_Status = 'paid',
-                Payment_Date = NOW(),
+            SET Payment_Status = 'paid', Payment_Date = COALESCE(Payment_Date, NOW()),
                 Transaction_ID = %s
-            WHERE Booking_ID = %s
-              AND Razorpay_Order_ID = %s
+            WHERE Booking_ID = %s AND Razorpay_Order_ID = %s
             """,
-            (
-                payment.razorpay_payment_id,
-                payment.booking_id,
-                payment.razorpay_order_id,
-            ),
+            (payment_id, booking_id, order_id),
         )
 
-        if cursor.rowcount != 1:
-            raise HTTPException(400, "Could not update payment record.")
+        can_confirm = row["booking_status"] == "pending_payment"
+        if can_confirm:
+            cursor.execute(
+                "SELECT (Payment_Expires_At IS NOT NULL AND Payment_Expires_At > NOW()) AS hold_valid "
+                "FROM BOOKING WHERE Booking_ID = %s",
+                (booking_id,),
+            )
+            hold = cursor.fetchone()
+            can_confirm = bool(hold and hold["hold_valid"])
 
-        cursor.execute(
-            """
-            UPDATE BOOKING
-            SET Status = 'confirmed',
-                Payment_Expires_At = NULL
-            WHERE Booking_ID = %s
-              AND Status = 'pending_payment'
-            """,
-            (payment.booking_id,),
-        )
+        if can_confirm:
+            cursor.execute(
+                """
+                SELECT 1
+                FROM BOOKING b
+                JOIN BOOKING_SLOT bs ON bs.Booking_ID = b.Booking_ID
+                JOIN BOOKING_SLOT own_bs ON own_bs.Slot_ID = bs.Slot_ID
+                WHERE own_bs.Booking_ID = %s
+                  AND b.Booking_ID <> %s
+                  AND b.Room_ID = %s
+                  AND b.Booking_Date = %s
+                  AND (
+                    b.Status = 'confirmed'
+                    OR (b.Status = 'pending_payment' AND b.Payment_Expires_At > NOW())
+                  )
+                LIMIT 1
+                """,
+                (booking_id, booking_id, row["Room_ID"], row["Booking_Date"]),
+            )
+            can_confirm = cursor.fetchone() is None
 
-        if cursor.rowcount != 1:
-            raise HTTPException(409, "Could not confirm this booking.")
+        if can_confirm:
+            cursor.execute(
+                "UPDATE BOOKING SET Status = 'confirmed', Payment_Expires_At = NULL "
+                "WHERE Booking_ID = %s AND Status = 'pending_payment'",
+                (booking_id,),
+            )
+            if cursor.rowcount == 1:
+                connection.commit()
+                return {"booking_id": booking_id, "status": "confirmed", "payment_status": "paid"}
 
+        # Never confirm a stale/cancelled/conflicting booking. Keep the captured
+        # payment visible for manual contact/refund; release any remaining hold.
+        if row["booking_status"] == "pending_payment":
+            cursor.execute(
+                "UPDATE BOOKING SET Status = 'cancelled', Payment_Expires_At = NULL "
+                "WHERE Booking_ID = %s AND Status = 'pending_payment'",
+                (booking_id,),
+            )
         connection.commit()
-
         return {
-            "message": "Payment verified and booking confirmed.",
-            "booking_id": payment.booking_id,
-            "status": "confirmed",
+            "booking_id": booking_id,
+            "status": "needs_review",
+            "payment_status": "paid",
+            "message": "Payment was captured, but the booking could not be safely confirmed. Contact the studio for resolution.",
         }
-
     except HTTPException:
         if connection and connection.is_connected():
             connection.rollback()
         raise
-    except mysql.connector.Error:
+    except mysql.connector.Error as exc:
         if connection and connection.is_connected():
             connection.rollback()
-        raise HTTPException(
-            500,
-            "Could not verify payment in the database.",
-        )
+        print("Record captured payment database error:", repr(exc))
+        raise HTTPException(500, "Could not reconcile the captured payment.")
     finally:
         if cursor:
             cursor.close()
@@ -621,74 +623,194 @@ def verify_payment(payment: PaymentVerification):
 
 
 # --------------------------------------------------
+# VERIFY PAYMENT SIGNATURE AND GATEWAY STATUS
+# --------------------------------------------------
+@app.post("/payments/verify")
+def verify_payment(payment: PaymentVerification):
+    client = get_razorpay_client()
+    message = f"{payment.razorpay_order_id}|{payment.razorpay_payment_id}".encode("utf-8")
+    expected_signature = hmac.new(
+        RAZORPAY_KEY_SECRET.encode("utf-8"), message, hashlib.sha256
+    ).hexdigest()
+    if not hmac.compare_digest(expected_signature, payment.razorpay_signature):
+        raise HTTPException(400, "Payment signature verification failed.")
+
+    try:
+        # A valid checkout signature alone is not enough: ask Razorpay for the
+        # payment record and compare order, amount, currency, and captured status.
+        gateway_payment = client.payment.fetch(payment.razorpay_payment_id)
+    except Exception as exc:
+        print("Razorpay payment fetch error:", repr(exc))
+        raise HTTPException(502, "Could not confirm payment status with Razorpay. Please retry shortly.")
+
+    if str(gateway_payment.get("order_id") or "") != payment.razorpay_order_id:
+        raise HTTPException(400, "Razorpay payment belongs to a different order.")
+
+    connection = None
+    cursor = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT Total_Amount FROM BOOKING WHERE Booking_ID = %s",
+            (payment.booking_id,),
+        )
+        booking_row = cursor.fetchone()
+        if not booking_row:
+            raise HTTPException(404, "Booking not found.")
+        expected_amount_paise = int(Decimal(str(booking_row["Total_Amount"])).quantize(Decimal("0.01")) * 100)
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+
+    if not _payment_matches_booking(
+        gateway_payment, payment.booking_id, payment.razorpay_order_id, expected_amount_paise
+    ):
+        status = str(gateway_payment.get("status") or "unknown")
+        raise HTTPException(
+            409,
+            f"Razorpay has not confirmed a captured payment for this booking (gateway status: {status}).",
+        )
+
+    result = _record_captured_payment(
+        payment.booking_id,
+        payment.razorpay_order_id,
+        payment.razorpay_payment_id,
+        gateway_payment.get("amount"),
+        gateway_payment.get("currency"),
+    )
+    if result["status"] == "needs_review":
+        # Return a conflict so the frontend doesn't display a success/confirmed state.
+        raise HTTPException(409, detail=result)
+    return {"message": "Payment verified and booking confirmed.", **result}
+
+
+# --------------------------------------------------
+# RAZORPAY WEBHOOK (configure this URL in Razorpay dashboard)
+# --------------------------------------------------
+@app.post("/payments/webhook")
+async def razorpay_webhook(
+    request: Request,
+    x_razorpay_signature: str = Header(default=""),
+):
+    if not RAZORPAY_WEBHOOK_SECRET:
+        raise HTTPException(503, "Razorpay webhook is not configured.")
+    raw_body = await request.body()
+    expected = hmac.new(
+        RAZORPAY_WEBHOOK_SECRET.encode("utf-8"), raw_body, hashlib.sha256
+    ).hexdigest()
+    if not x_razorpay_signature or not hmac.compare_digest(expected, x_razorpay_signature):
+        raise HTTPException(400, "Invalid Razorpay webhook signature.")
+
+    import json
+    try:
+        event = json.loads(raw_body.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        raise HTTPException(400, "Invalid webhook payload.")
+
+    # Process only captured payments. Other events do not prove that money was captured.
+    if event.get("event") != "payment.captured":
+        return {"received": True, "processed": False}
+    entity = (event.get("payload") or {}).get("payment", {}).get("entity") or {}
+    payment_id = entity.get("id")
+    order_id = entity.get("order_id")
+    if not payment_id or not order_id:
+        raise HTTPException(400, "Webhook is missing payment/order identifiers.")
+
+    try:
+        client = get_razorpay_client()
+        gateway_payment = client.payment.fetch(payment_id)
+    except Exception as exc:
+        print("Razorpay webhook payment fetch error:", repr(exc))
+        raise HTTPException(502, "Could not reconcile webhook payment with Razorpay.")
+
+    if str(gateway_payment.get("order_id") or "") != str(order_id):
+        raise HTTPException(400, "Webhook payment/order mismatch.")
+
+    connection = None
+    cursor = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT b.Booking_ID, b.Total_Amount FROM BOOKING b "
+            "JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID "
+            "WHERE p.Razorpay_Order_ID = %s LIMIT 1",
+            (order_id,),
+        )
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(404, "No booking matches this Razorpay order.")
+        booking_id = row["Booking_ID"]
+        expected_amount_paise = int(Decimal(str(row["Total_Amount"])).quantize(Decimal("0.01")) * 100)
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+
+    if not _payment_matches_booking(
+        gateway_payment, booking_id, order_id, expected_amount_paise
+    ):
+        raise HTTPException(409, "Webhook payment is not a matching captured INR payment.")
+
+    result = _record_captured_payment(
+        booking_id, order_id, payment_id,
+        gateway_payment.get("amount"), gateway_payment.get("currency"),
+    )
+    return {"received": True, "processed": True, **result}
+
+
+# --------------------------------------------------
 # CANCEL AN UNCOMPLETED CHECKOUT
 # --------------------------------------------------
-
 @app.post("/payments/cancel")
 def cancel_payment_checkout(data: PaymentCancellation):
     connection = None
     cursor = None
-
     try:
         connection = get_db_connection()
         connection.start_transaction()
         cursor = connection.cursor(dictionary=True)
-
         cursor.execute(
             """
             SELECT b.Status, p.Payment_Status, p.Razorpay_Order_ID
-            FROM BOOKING b
-            JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
-            WHERE b.Booking_ID = %s
-            FOR UPDATE
+            FROM BOOKING b JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
+            WHERE b.Booking_ID = %s FOR UPDATE
             """,
             (data.booking_id,),
         )
         row = cursor.fetchone()
-
         if not row:
             raise HTTPException(404, "Booking or payment record not found.")
-
         if row["Razorpay_Order_ID"] != data.razorpay_order_id:
             raise HTTPException(400, "Payment order does not match this booking.")
-
         if row["Payment_Status"] == "paid":
-            raise HTTPException(
-                409,
-                "This payment is already recorded as paid.",
-            )
+            raise HTTPException(409, "This payment is already recorded as paid.")
 
+        # This endpoint is called by the browser's checkout-dismiss handler. A
+        # dismissal does not prove payment failed, so don't mark PAYMENT failed.
+        # Release the slot hold; a delayed captured payment is handled by verify/webhook
+        # and will be recorded as paid but flagged for manual resolution if stale.
         if row["Status"] == "pending_payment":
             cursor.execute(
-                """
-                UPDATE BOOKING
-                SET Status = 'cancelled',
-                    Payment_Expires_At = NULL
-                WHERE Booking_ID = %s
-                """,
+                "UPDATE BOOKING SET Status = 'cancelled', Payment_Expires_At = NULL "
+                "WHERE Booking_ID = %s AND Status = 'pending_payment'",
                 (data.booking_id,),
             )
-            cursor.execute(
-                """
-                UPDATE PAYMENT
-                SET Payment_Status = 'failed'
-                WHERE Booking_ID = %s
-                  AND Payment_Status <> 'paid'
-                """,
-                (data.booking_id,),
-            )
-
         connection.commit()
-        return {"message": "Checkout cancelled.", "booking_id": data.booking_id}
-
+        return {"message": "Checkout closed. Any delayed payment will be reconciled safely.", "booking_id": data.booking_id}
     except HTTPException:
         if connection and connection.is_connected():
             connection.rollback()
         raise
-    except mysql.connector.Error:
+    except mysql.connector.Error as exc:
         if connection and connection.is_connected():
             connection.rollback()
-        raise HTTPException(500, "Could not cancel this checkout.")
+        print("Cancel checkout database error:", repr(exc))
+        raise HTTPException(500, "Could not close this checkout.")
     finally:
         if cursor:
             cursor.close()
@@ -700,16 +822,16 @@ def cancel_payment_checkout(data: PaymentCancellation):
 # ADMIN AUTHENTICATION
 # Keep this BEFORE all routes that use verify_admin.
 # --------------------------------------------------
-
+ 
 admin_security = HTTPBasic()
-
-
+ 
+ 
 def verify_admin(
     credentials: HTTPBasicCredentials = Depends(admin_security),
 ):
     expected_username = os.getenv("ADMIN_USERNAME", "")
     expected_password = os.getenv("ADMIN_PASSWORD", "")
-
+ 
     username_ok = secrets.compare_digest(
         credentials.username,
         expected_username,
@@ -718,7 +840,7 @@ def verify_admin(
         credentials.password,
         expected_password,
     )
-
+ 
     if (
         not expected_username
         or not expected_password
@@ -730,23 +852,23 @@ def verify_admin(
             detail="Invalid admin credentials",
             headers={"WWW-Authenticate": "Basic"},
         )
-
+ 
     return True
-
-
+ 
+ 
 # --------------------------------------------------
 # ADMIN STATISTICS
 # --------------------------------------------------
-
+ 
 @app.get("/admin/stats")
 def admin_stats(_: bool = Depends(verify_admin)):
     connection = None
     cursor = None
-
+ 
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
-
+ 
         cursor.execute(
             """
             SELECT
@@ -763,10 +885,10 @@ def admin_stats(_: bool = Depends(verify_admin)):
             FROM BOOKING
             """
         )
-
+ 
         result = cursor.fetchone()
         return {key: int(value or 0) for key, value in result.items()}
-
+ 
     except mysql.connector.Error:
         raise HTTPException(
             500,
@@ -777,26 +899,26 @@ def admin_stats(_: bool = Depends(verify_admin)):
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
-
-
+ 
+ 
 # --------------------------------------------------
 # ADMIN BOOKINGS LIST
 # --------------------------------------------------
-
+ 
 @app.get("/admin/bookings")
 def admin_bookings(_: bool = Depends(verify_admin)):
     connection = None
     cursor = None
-
+ 
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
-
+ 
         cursor.execute(
             """
             SELECT
                 b.Booking_ID AS booking_id,
-                c.Name AS customer_name,
+                COALESCE(b.Customer_Name, c.Name) AS customer_name,
                 c.Phone AS phone,
                 b.Booking_Date AS booking_date,
                 b.Total_Amount AS total_amount,
@@ -818,16 +940,16 @@ def admin_bookings(_: bool = Depends(verify_admin)):
                 b.Booking_ID DESC
             """
         )
-
+ 
         rows = cursor.fetchall()
         bookings = []
-
+ 
         for row in rows:
             booking_date = row["booking_date"]
             start_time = row["start_time"]
             end_time = row["end_time"]
             created_at = row["created_at"]
-
+ 
             bookings.append({
                 "booking_id": row["booking_id"],
                 "customer_name": row["customer_name"],
@@ -847,9 +969,9 @@ def admin_bookings(_: bool = Depends(verify_admin)):
                 "transaction_id": row["transaction_id"],
                 "created_at": created_at.isoformat() if created_at else None,
             })
-
+ 
         return {"bookings": bookings}
-
+ 
     except mysql.connector.Error:
         raise HTTPException(500, "Could not retrieve bookings.")
     finally:
@@ -857,12 +979,12 @@ def admin_bookings(_: bool = Depends(verify_admin)):
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
-
-
+ 
+ 
 # --------------------------------------------------
 # ADMIN UPDATE BOOKING STATUS
 # --------------------------------------------------
-
+ 
 @app.patch("/admin/bookings/{booking_id}/status")
 def update_booking_status(
     booking_id: int,
@@ -871,12 +993,12 @@ def update_booking_status(
 ):
     connection = None
     cursor = None
-
+ 
     try:
         connection = get_db_connection()
         connection.start_transaction()
         cursor = connection.cursor(dictionary=True)
-
+ 
         cursor.execute(
             """
             SELECT
@@ -890,19 +1012,19 @@ def update_booking_status(
             (booking_id,),
         )
         booking = cursor.fetchone()
-
+ 
         if not booking:
             raise HTTPException(404, "Booking not found.")
-
+ 
         current_status = (booking["Status"] or "").lower()
         new_status = update.status
-
+ 
         if current_status == "cancelled":
             raise HTTPException(
                 409,
                 "A cancelled booking cannot be reopened here.",
             )
-
+ 
         # A booking must never be manually confirmed without payment.
         if new_status == "confirmed":
             if (
@@ -913,7 +1035,7 @@ def update_booking_status(
                     409,
                     "This booking cannot be confirmed until payment is verified.",
                 )
-
+ 
         if new_status == "cancelled":
             cursor.execute(
                 """
@@ -933,15 +1055,15 @@ def update_booking_status(
                 """,
                 (new_status, booking_id),
             )
-
+ 
         connection.commit()
-
+ 
         return {
             "message": f"Booking {booking_id} updated.",
             "booking_id": booking_id,
             "status": new_status,
         }
-
+ 
     except HTTPException:
         if connection and connection.is_connected():
             connection.rollback()
@@ -955,50 +1077,50 @@ def update_booking_status(
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
-
-
+ 
+ 
 # --------------------------------------------------
 # CUSTOMER FEEDBACK
 # --------------------------------------------------
-
+ 
 class FeedbackRequest(BaseModel):
     booking_id: int = Field(gt=0)
     rating: int = Field(ge=1, le=5)
     comment: str = Field(default="", max_length=2000)
-
-
-
+ 
+ 
+ 
 @app.post("/feedback")
 def submit_feedback(feedback: FeedbackRequest):
     connection = None
     cursor = None
-
+ 
     try:
         connection = get_db_connection()
         connection.start_transaction()
         cursor = connection.cursor(dictionary=True)
-
+ 
         cursor.execute(
             """
             SELECT
-                b.booking_id,
-                b.status,
-                b.booking_date,
+                b.Booking_ID AS booking_id,
+                b.Status AS status,
+                b.Booking_Date AS booking_date,
                 p.Payment_Status AS payment_status
-            FROM BOOKINGS b
+            FROM BOOKING b
             LEFT JOIN PAYMENT p
-                ON p.Booking_ID = b.booking_id
-            WHERE b.booking_id = %s
+                ON p.Booking_ID = b.Booking_ID
+            WHERE b.Booking_ID = %s
             FOR UPDATE
             """,
             (feedback.booking_id,),
         )
-
+ 
         booking = cursor.fetchone()
-
+ 
         if not booking:
             raise HTTPException(404, "Booking not found.")
-
+ 
         if (
             booking["status"] != "confirmed"
             or booking["payment_status"] != "paid"
@@ -1007,13 +1129,13 @@ def submit_feedback(feedback: FeedbackRequest):
                 400,
                 "Feedback is only allowed for confirmed, paid bookings.",
             )
-
+ 
         if booking["booking_date"] >= date.today():
             raise HTTPException(
                 400,
                 "Feedback can only be submitted after the booking date.",
             )
-
+ 
         cursor.execute(
             """
             INSERT INTO FEEDBACK
@@ -1026,54 +1148,54 @@ def submit_feedback(feedback: FeedbackRequest):
                 feedback.comment.strip() if feedback.comment else None,
             ),
         )
-
+ 
         connection.commit()
-
+ 
         return {
             "message": "Thank you for your feedback!",
             "booking_id": feedback.booking_id,
         }
-
+ 
     except HTTPException:
         if connection and connection.is_connected():
             connection.rollback()
         raise
-
+ 
     except mysql.connector.IntegrityError as exc:
         if connection and connection.is_connected():
             connection.rollback()
-
+ 
         if getattr(exc, "errno", None) == 1062:
             raise HTTPException(
                 409,
                 "Feedback has already been submitted for this booking.",
             )
-
+ 
         raise HTTPException(500, "Could not save feedback.")
-
+ 
     except mysql.connector.Error:
         if connection and connection.is_connected():
             connection.rollback()
         raise HTTPException(500, "Could not save feedback.")
-
+ 
     finally:
         if cursor:
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
-
-
-
-
+ 
+ 
+ 
+ 
 @app.get("/admin/feedback")
 def get_feedback(_: bool = Depends(verify_admin)):
     connection = None
     cursor = None
-
+ 
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
-
+ 
         cursor.execute(
             """
             SELECT
@@ -1082,16 +1204,18 @@ def get_feedback(_: bool = Depends(verify_admin)):
                 f.Rating AS rating,
                 f.Comment AS comment,
                 f.Feedback_Date AS feedback_date,
-                b.name AS customer_name
+                c.Name AS customer_name
             FROM FEEDBACK f
-            JOIN BOOKINGS b
-                ON b.booking_id = f.Booking_ID
+            JOIN BOOKING b
+                ON b.Booking_ID = f.Booking_ID
+            JOIN CUSTOMER c
+                ON c.Customer_ID = b.Customer_ID
             ORDER BY f.Feedback_Date DESC
             """
         )
-
+ 
         rows = cursor.fetchall()
-
+ 
         return {
             "feedback": [
                 {
@@ -1105,13 +1229,16 @@ def get_feedback(_: bool = Depends(verify_admin)):
                 for row in rows
             ]
         }
-
+ 
     except mysql.connector.Error:
         raise HTTPException(500, "Could not retrieve feedback.")
-
+ 
     finally:
         if cursor:
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
+ 
+ 
+
 
