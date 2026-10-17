@@ -31,10 +31,13 @@ RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
  
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-    ],
+    
+allow_origins=[
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "https://jam-room-booking-frontend-42lgyri88-steffanie.vercel.app",
+],
+
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
     allow_headers=["Content-Type"],
