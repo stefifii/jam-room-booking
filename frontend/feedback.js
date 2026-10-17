@@ -1,5 +1,5 @@
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://jam-room-booking.onrender.com";
 
 const feedbackForm = document.getElementById("feedback-form");
 const ratingInput = document.getElementById("rating");

@@ -1,5 +1,5 @@
 console.log("ZOTE SCRIPT LOADED — VERSION CHECK 1");
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://jam-room-booking.onrender.com";
 
 const bookingDate = document.getElementById("booking-date");
 
