@@ -110,12 +110,13 @@ if (bookingDate) {
     // ----------------------------------------
 
     function normalizeSlotLabel(label) {
-        return String(label || "")
-            .replace(/\s+/g, " ")
-            .replace(/\s*-\s*/g, "-")
-            .trim()
-            .toUpperCase();
-    }
+    return String(label || "")
+        .replace(/[–—−]/g, "-")
+        .replace(/\s+/g, " ")
+        .replace(/\s*-\s*/g, "-")
+        .trim()
+        .toUpperCase();
+}
 
     function updateSlotSelection(selectedSlot) {
         timeSlots.forEach(slot => {
