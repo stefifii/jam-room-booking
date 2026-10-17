@@ -180,7 +180,7 @@ def get_availability(booking_date: date):
         cursor.execute(
             """
             SELECT Room_ID
-            FROM ROOM
+            FROM room
             WHERE Room_Name = %s
             LIMIT 1
             """,
@@ -201,8 +201,8 @@ def get_availability(booking_date: date):
         cursor.execute(
             """
             SELECT DISTINCT bs.Slot_ID
-            FROM BOOKING b
-            JOIN BOOKING_SLOT bs
+            FROM booking b
+            JOIN booking_slot bs
                 ON bs.Booking_ID = b.Booking_ID
             WHERE b.Room_ID = %s
               AND b.Booking_Date = %s
@@ -226,7 +226,7 @@ def get_availability(booking_date: date):
         cursor.execute(
             """
             SELECT Slot_ID, Start_Time, End_Time
-            FROM SLOT
+            FROM slot
             ORDER BY Start_Time
             """
         )
@@ -300,7 +300,7 @@ def create_payment_order(booking: BookingRequest):
         cursor.execute(
             """
             SELECT Room_ID, Hourly_Rate, Capacity
-            FROM ROOM
+            FROM room
             WHERE Room_Name = %s
             LIMIT 1
             FOR UPDATE
@@ -323,7 +323,7 @@ def create_payment_order(booking: BookingRequest):
         cursor.execute(
             """
             SELECT Slot_ID
-            FROM SLOT
+            FROM slot
             WHERE Start_Time = %s AND End_Time = %s
             LIMIT 1
             """,
@@ -341,8 +341,8 @@ def create_payment_order(booking: BookingRequest):
         cursor.execute(
             """
             SELECT b.Booking_ID
-            FROM BOOKING b
-            JOIN BOOKING_SLOT bs ON bs.Booking_ID = b.Booking_ID
+            FROM booking b
+            JOIN booking_slot bs ON bs.Booking_ID = b.Booking_ID
             WHERE b.Room_ID = %s
               AND b.Booking_Date = %s
               AND bs.Slot_ID = %s
@@ -369,7 +369,7 @@ def create_payment_order(booking: BookingRequest):
         cursor.execute(
             """
             SELECT Customer_ID
-            FROM CUSTOMER
+            FROM customer
             WHERE Phone = %s
             LIMIT 1
             """,
@@ -382,7 +382,7 @@ def create_payment_order(booking: BookingRequest):
         else:
             cursor.execute(
                 """
-                INSERT INTO CUSTOMER (Name, Phone, Password)
+                INSERT INTO customer (Name, Phone, Password)
                 VALUES (%s, %s, NULL)
                 """,
                 (booking.name.strip(), booking.phone),
@@ -396,7 +396,7 @@ def create_payment_order(booking: BookingRequest):
  
         cursor.execute(
             """
-            INSERT INTO BOOKING
+            INSERT INTO booking
                 (Booking_Date, Total_Amount, Status, Customer_ID,
                  Customer_Name, Room_ID, Members, Payment_Expires_At)
             VALUES (%s, %s, %s, %s, %s, %s, %s,
@@ -416,7 +416,7 @@ def create_payment_order(booking: BookingRequest):
  
         cursor.execute(
             """
-            INSERT INTO BOOKING_SLOT (Booking_ID, Slot_ID)
+            INSERT INTO booking_slot (Booking_ID, Slot_ID)
             VALUES (%s, %s)
             """,
             (booking_id, slot["Slot_ID"]),
@@ -434,7 +434,7 @@ def create_payment_order(booking: BookingRequest):
  
         cursor.execute(
             """
-            INSERT INTO PAYMENT
+            INSERT INTO payment
                 (Booking_ID, Amount, Payment_Method, Payment_Status,
                  Razorpay_Order_ID)
             VALUES (%s, %s, %s, %s, %s)
@@ -507,13 +507,13 @@ def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, cur
         cursor = connection.cursor(dictionary=True)
 
         # Read the room ID, then take the same room lock used during order creation.
-        cursor.execute("SELECT Room_ID FROM BOOKING WHERE Booking_ID = %s", (booking_id,))
+        cursor.execute("SELECT Room_ID FROM booking WHERE Booking_ID = %s", (booking_id,))
         initial = cursor.fetchone()
         if not initial:
             raise HTTPException(404, "Booking not found for this payment.")
 
         cursor.execute(
-            "SELECT Room_ID FROM ROOM WHERE Room_ID = %s FOR UPDATE",
+            "SELECT Room_ID FROM room WHERE Room_ID = %s FOR UPDATE",
             (initial["Room_ID"],),
         )
         if not cursor.fetchone():
@@ -524,8 +524,8 @@ def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, cur
             SELECT b.Booking_ID, b.Room_ID, b.Booking_Date, b.Status AS booking_status,
                    b.Payment_Expires_At, b.Total_Amount, p.Payment_Status,
                    p.Razorpay_Order_ID, p.Transaction_ID
-            FROM BOOKING b
-            JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
+            FROM booking b
+            JOIN payment p ON p.Booking_ID = b.Booking_ID
             WHERE b.Booking_ID = %s
             FOR UPDATE
             """,
@@ -547,7 +547,7 @@ def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, cur
 
         cursor.execute(
             """
-            UPDATE PAYMENT
+            UPDATE payment
             SET Payment_Status = 'paid', Payment_Date = COALESCE(Payment_Date, NOW()),
                 Transaction_ID = %s
             WHERE Booking_ID = %s AND Razorpay_Order_ID = %s
@@ -559,7 +559,7 @@ def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, cur
         if can_confirm:
             cursor.execute(
                 "SELECT (Payment_Expires_At IS NOT NULL AND Payment_Expires_At > NOW()) AS hold_valid "
-                "FROM BOOKING WHERE Booking_ID = %s",
+                "FROM booking WHERE Booking_ID = %s",
                 (booking_id,),
             )
             hold = cursor.fetchone()
@@ -569,9 +569,9 @@ def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, cur
             cursor.execute(
                 """
                 SELECT 1
-                FROM BOOKING b
-                JOIN BOOKING_SLOT bs ON bs.Booking_ID = b.Booking_ID
-                JOIN BOOKING_SLOT own_bs ON own_bs.Slot_ID = bs.Slot_ID
+                FROM booking b
+                JOIN booking_slot bs ON bs.Booking_ID = b.Booking_ID
+                JOIN booking_slot own_bs ON own_bs.Slot_ID = bs.Slot_ID
                 WHERE own_bs.Booking_ID = %s
                   AND b.Booking_ID <> %s
                   AND b.Room_ID = %s
@@ -588,7 +588,7 @@ def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, cur
 
         if can_confirm:
             cursor.execute(
-                "UPDATE BOOKING SET Status = 'confirmed', Payment_Expires_At = NULL "
+                "UPDATE booking SET Status = 'confirmed', Payment_Expires_At = NULL "
                 "WHERE Booking_ID = %s AND Status = 'pending_payment'",
                 (booking_id,),
             )
@@ -600,7 +600,7 @@ def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, cur
         # payment visible for manual contact/refund; release any remaining hold.
         if row["booking_status"] == "pending_payment":
             cursor.execute(
-                "UPDATE BOOKING SET Status = 'cancelled', Payment_Expires_At = NULL "
+                "UPDATE booking SET Status = 'cancelled', Payment_Expires_At = NULL "
                 "WHERE Booking_ID = %s AND Status = 'pending_payment'",
                 (booking_id,),
             )
@@ -657,7 +657,7 @@ def verify_payment(payment: PaymentVerification):
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(
-            "SELECT Total_Amount FROM BOOKING WHERE Booking_ID = %s",
+            "SELECT Total_Amount FROM booking WHERE Booking_ID = %s",
             (payment.booking_id,),
         )
         booking_row = cursor.fetchone()
@@ -740,8 +740,8 @@ async def razorpay_webhook(
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(
-            "SELECT b.Booking_ID, b.Total_Amount FROM BOOKING b "
-            "JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID "
+            "SELECT b.Booking_ID, b.Total_Amount FROM booking b "
+            "JOIN payment p ON p.Booking_ID = b.Booking_ID "
             "WHERE p.Razorpay_Order_ID = %s LIMIT 1",
             (order_id,),
         )
@@ -782,7 +782,7 @@ def cancel_payment_checkout(data: PaymentCancellation):
         cursor.execute(
             """
             SELECT b.Status, p.Payment_Status, p.Razorpay_Order_ID
-            FROM BOOKING b JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
+            FROM booking b JOIN payment p ON p.Booking_ID = b.Booking_ID
             WHERE b.Booking_ID = %s FOR UPDATE
             """,
             (data.booking_id,),
@@ -801,7 +801,7 @@ def cancel_payment_checkout(data: PaymentCancellation):
         # and will be recorded as paid but flagged for manual resolution if stale.
         if row["Status"] == "pending_payment":
             cursor.execute(
-                "UPDATE BOOKING SET Status = 'cancelled', Payment_Expires_At = NULL "
+                "UPDATE booking SET Status = 'cancelled', Payment_Expires_At = NULL "
                 "WHERE Booking_ID = %s AND Status = 'pending_payment'",
                 (data.booking_id,),
             )
@@ -950,7 +950,7 @@ def admin_stats(_: bool = Depends(verify_admin)):
                     Status IN ('pending', 'confirmed', 'pending_payment')
                     AND Booking_Date >= CURDATE()
                 ), 0) AS upcoming_bookings
-            FROM BOOKING
+            FROM booking
         """)
 
         result = cursor.fetchone()
@@ -995,11 +995,11 @@ def admin_bookings(_: bool = Depends(verify_admin)):
                 s.End_Time AS end_time,
                 p.Payment_Status AS payment_status,
                 p.Transaction_ID AS transaction_id
-            FROM BOOKING b
-            JOIN CUSTOMER c ON b.Customer_ID = c.Customer_ID
-            LEFT JOIN BOOKING_SLOT bs ON b.Booking_ID = bs.Booking_ID
-            LEFT JOIN SLOT s ON bs.Slot_ID = s.Slot_ID
-            LEFT JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
+            FROM booking b
+            JOIN customer c ON b.Customer_ID = c.Customer_ID
+            LEFT JOIN booking_slot bs ON b.Booking_ID = bs.Booking_ID
+            LEFT JOIN slot s ON bs.Slot_ID = s.Slot_ID
+            LEFT JOIN payment p ON p.Booking_ID = b.Booking_ID
             ORDER BY
                 b.Booking_Date DESC,
                 s.Start_Time DESC,
@@ -1048,7 +1048,7 @@ def admin_bookings(_: bool = Depends(verify_admin)):
  
  
 # --------------------------------------------------
-# ADMIN UPDATE BOOKING STATUS
+# ADMIN UPDATE booking STATUS
 # --------------------------------------------------
  
 @app.patch("/admin/bookings/{booking_id}/status")
@@ -1070,8 +1070,8 @@ def update_booking_status(
             SELECT
                 b.Status,
                 p.Payment_Status
-            FROM BOOKING b
-            LEFT JOIN PAYMENT p ON p.Booking_ID = b.Booking_ID
+            FROM booking b
+            LEFT JOIN payment p ON p.Booking_ID = b.Booking_ID
             WHERE b.Booking_ID = %s
             FOR UPDATE
             """,
@@ -1105,7 +1105,7 @@ def update_booking_status(
         if new_status == "cancelled":
             cursor.execute(
                 """
-                UPDATE BOOKING
+                UPDATE booking
                 SET Status = 'cancelled',
                     Payment_Expires_At = NULL
                 WHERE Booking_ID = %s
@@ -1115,7 +1115,7 @@ def update_booking_status(
         else:
             cursor.execute(
                 """
-                UPDATE BOOKING
+                UPDATE booking
                 SET Status = %s
                 WHERE Booking_ID = %s
                 """,
@@ -1173,8 +1173,8 @@ def submit_feedback(feedback: FeedbackRequest):
                 b.Status AS status,
                 b.Booking_Date AS booking_date,
                 p.Payment_Status AS payment_status
-            FROM BOOKING b
-            LEFT JOIN PAYMENT p
+            FROM booking b
+            LEFT JOIN payment p
                 ON p.Booking_ID = b.Booking_ID
             WHERE b.Booking_ID = %s
             FOR UPDATE
@@ -1204,7 +1204,7 @@ def submit_feedback(feedback: FeedbackRequest):
  
         cursor.execute(
             """
-            INSERT INTO FEEDBACK
+            INSERT INTO feedback
                 (Booking_ID, Rating, Comment, Feedback_Date)
             VALUES (%s, %s, %s, NOW())
             """,
@@ -1271,10 +1271,10 @@ def get_feedback(_: bool = Depends(verify_admin)):
                 f.Comment AS comment,
                 f.Feedback_Date AS feedback_date,
                 c.Name AS customer_name
-            FROM FEEDBACK f
-            JOIN BOOKING b
+            FROM feedback f
+            JOIN booking b
                 ON b.Booking_ID = f.Booking_ID
-            JOIN CUSTOMER c
+            JOIN customer c
                 ON c.Customer_ID = b.Customer_ID
             ORDER BY f.Feedback_Date DESC
             """
