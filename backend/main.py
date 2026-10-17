@@ -44,6 +44,7 @@ allow_origins=[
 )
  
  
+
 def get_db_connection():
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "127.0.0.1"),
@@ -51,7 +52,9 @@ def get_db_connection():
         user=os.getenv("DB_USER", "root"),
         password=os.getenv("DB_PASSWORD", ""),
         database=os.getenv("DB_NAME", "zote_jam_room"),
+        ssl_disabled=False,
     )
+
  
  
 def get_razorpay_client():
