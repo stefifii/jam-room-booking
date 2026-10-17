@@ -253,11 +253,12 @@ def get_availability(booking_date: date):
     except HTTPException:
         raise
  
-    except mysql.connector.Error:
+    except Exception as e:
+        print(f"AVAILABILITY DATABASE ERROR: {repr(e)}", flush=True)
         raise HTTPException(
-            status_code=500,
-            detail="Could not retrieve availability from the database.",
-        )
+        status_code=500,
+        detail="Could not retrieve availability from the database."
+    )
  
     finally:
         if cursor:
