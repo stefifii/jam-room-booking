@@ -13,30 +13,29 @@ const statusFilter = document.getElementById("status-filter");
 const dashboardMessage = document.getElementById("dashboard-message");
 const emptyState = document.getElementById("empty-state");
 
-let adminCredentials = sessionStorage.getItem("zoteAdminCredentials") || "";
 let bookings = [];
 let isLoading = false;
-
-function makeAuthHeader() {
-  return `Basic ${adminCredentials}`;
-}
 
 async function apiRequest(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
-      "Authorization": makeAuthHeader(),
       "Content-Type": "application/json",
       ...(options.headers || {})
     }
   });
 
-  if (response.status === 401) {
-    logout();
-    throw new Error("Your session is no longer authorized. Please sign in again.");
-  }
-
   const data = await response.json().catch(() => ({}));
+
+  if (response.status === 401) {
+    if (path !== "/admin/login") {
+      await logout(false);
+    }
+    throw new Error(
+      data.detail || "Your session expired. Please sign in again."
+    );
+  }
 
   if (!response.ok) {
     throw new Error(data.detail || "The request could not be completed.");
@@ -57,10 +56,21 @@ function showLogin() {
   logoutButton.classList.add("hidden");
 }
 
-function logout() {
-  adminCredentials = "";
-  sessionStorage.removeItem("zoteAdminCredentials");
+async function logout(callServer = true) {
+  if (callServer) {
+    try {
+      await fetch(`${API_URL}/admin/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error) {
+      console.error("Could not contact the logout endpoint.");
+    }
+  }
+
   bookings = [];
+  tableBody.innerHTML = "";
   showLogin();
   loginError.textContent = "";
   dashboardMessage.textContent = "";
@@ -85,7 +95,6 @@ function escapeHTML(value) {
 function formatDate(dateString) {
   if (!dateString) return "—";
 
-  // Use midday to avoid timezone shifting the calendar date.
   const date = new Date(`${dateString}T12:00:00`);
 
   if (Number.isNaN(date.getTime())) return dateString;
@@ -124,7 +133,6 @@ async function loadBookings() {
   renderBookings();
 }
 
-
 function renderBookings() {
   const searchTerm = searchInput.value.trim().toLowerCase();
   const selectedStatus = statusFilter.value;
@@ -151,10 +159,6 @@ function renderBookings() {
     return matchesSearch && matchesStatus;
   });
 
-  console.log("Admin bookings:", bookings.length);
-  console.log("Selected filter:", selectedStatus);
-  console.log("Filtered bookings:", filteredBookings.length);
-
   document.getElementById("booking-count").textContent =
     `${filteredBookings.length} booking${filteredBookings.length === 1 ? "" : "s"}`;
 
@@ -164,62 +168,62 @@ function renderBookings() {
   for (const booking of filteredBookings) {
     const status = String(booking.status || "pending").toLowerCase();
 
-    const actionButtons = status === "pending" ||
-      status === "pending_payment"
-      ? `
-        <button class="button button-primary" data-action="confirmed"
-          data-id="${Number(booking.booking_id)}">Confirm</button>
-        <button class="button button-danger" data-action="cancelled"
-          data-id="${Number(booking.booking_id)}">Cancel</button>
-      `
-      : status === "confirmed"
-      ? `
-        <button class="button button-danger" data-action="cancelled"
-          data-id="${Number(booking.booking_id)}">Cancel</button>
-      `
-      : `<span class="muted">No actions</span>`;
+    const actionButtons =
+      status === "pending" || status === "pending_payment"
+        ? `
+          <button class="button button-primary"
+            data-action="confirmed"
+            data-id="${Number(booking.booking_id)}">Confirm</button>
+          <button class="button button-danger"
+            data-action="cancelled"
+            data-id="${Number(booking.booking_id)}">Cancel</button>
+        `
+        : status === "confirmed"
+          ? `
+            <button class="button button-danger"
+              data-action="cancelled"
+              data-id="${Number(booking.booking_id)}">Cancel</button>
+          `
+          : `<span class="muted">No actions</span>`;
 
     const row = document.createElement("tr");
 
-    
-row.innerHTML = `
-  <td>
-    <span class="booking-id">#${Number(booking.booking_id)}</span>
-  </td>
-  <td>
-    <div class="customer-name">${escapeHTML(booking.customer_name)}</div>
-    <div class="customer-phone">${escapeHTML(booking.phone)}</div>
-  </td>
-  <td>
-    <div class="date-text">${escapeHTML(formatDate(booking.booking_date))}</div>
-    <div class="time-text">${escapeHTML(booking.time_slot)}</div>
-  </td>
-  <td>${Number(booking.members)}</td>
-  <td>${escapeHTML(formatMoney(booking.total_amount))}</td>
-  <td>
-    <span class="status status-${escapeHTML(status)}">
-      ${escapeHTML(status.replaceAll("_", " "))}
-    </span>
-  </td>
-  <td>
-    <span class="status status-${escapeHTML(
-      String(booking.payment_status || "unknown").toLowerCase()
-    )}">
-      ${escapeHTML(
-        String(booking.payment_status || "unknown")
-          .replaceAll("_", " ")
-          .toUpperCase()
-      )}
-    </span>
-  </td>
-  <td><div class="actions">${actionButtons}</div></td>
-`;
-
+    row.innerHTML = `
+      <td>
+        <span class="booking-id">#${Number(booking.booking_id)}</span>
+      </td>
+      <td>
+        <div class="customer-name">${escapeHTML(booking.customer_name)}</div>
+        <div class="customer-phone">${escapeHTML(booking.phone)}</div>
+      </td>
+      <td>
+        <div class="date-text">${escapeHTML(formatDate(booking.booking_date))}</div>
+        <div class="time-text">${escapeHTML(booking.time_slot)}</div>
+      </td>
+      <td>${Number(booking.members)}</td>
+      <td>${escapeHTML(formatMoney(booking.total_amount))}</td>
+      <td>
+        <span class="status status-${escapeHTML(status)}">
+          ${escapeHTML(status.replaceAll("_", " "))}
+        </span>
+      </td>
+      <td>
+        <span class="status status-${escapeHTML(
+          String(booking.payment_status || "unknown").toLowerCase()
+        )}">
+          ${escapeHTML(
+            String(booking.payment_status || "unknown")
+              .replaceAll("_", " ")
+              .toUpperCase()
+          )}
+        </span>
+      </td>
+      <td><div class="actions">${actionButtons}</div></td>
+    `;
 
     tableBody.appendChild(row);
   }
 }
-
 
 async function refreshDashboard() {
   if (isLoading) return;
@@ -253,50 +257,26 @@ loginForm.addEventListener("submit", async event => {
     return;
   }
 
-  // Encode credentials for HTTP Basic authentication.
-  adminCredentials = btoa(`${username}:${password}`);
-
   try {
-    // Test credentials against a protected endpoint first.
-    const stats = await apiRequest("/admin/stats");
+    await apiRequest("/admin/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password })
+    });
 
-    sessionStorage.setItem(
-      "zoteAdminCredentials",
-      adminCredentials
-    );
-
-    document.getElementById("total-bookings").textContent =
-      stats.total_bookings;
-    document.getElementById("pending-bookings").textContent =
-      stats.pending_bookings;
-    document.getElementById("confirmed-bookings").textContent =
-      stats.confirmed_bookings;
-    document.getElementById("upcoming-bookings").textContent =
-      stats.upcoming_bookings;
-
+    await loadStats();
     showDashboard();
 
-     await Promise.all([
-     loadBookings(),
-     loadFeedback()
-    ]);
+    await Promise.all([loadBookings(), loadFeedback()]);
 
-setMessage("Signed in successfully.", "success");
+    loginForm.reset();
+    setMessage("Signed in successfully.", "success");
   } catch (error) {
-    adminCredentials = "";
-    sessionStorage.removeItem("zoteAdminCredentials");
     showLogin();
-
-    if (error.message.includes("no longer authorized")) {
-      loginError.textContent = "Invalid username or password.";
-    } else {
-      loginError.textContent =
-        "Could not connect to the server. Check that FastAPI is running.";
-    }
+    loginError.textContent = error.message;
   }
 });
 
-logoutButton.addEventListener("click", logout);
+logoutButton.addEventListener("click", () => logout());
 refreshButton.addEventListener("click", refreshDashboard);
 searchInput.addEventListener("input", renderBookings);
 statusFilter.addEventListener("change", renderBookings);
@@ -312,7 +292,9 @@ tableBody.addEventListener("click", async event => {
 
   const actionText = newStatus === "confirmed" ? "confirm" : "cancel";
 
-  if (!window.confirm(`Are you sure you want to ${actionText} booking #${bookingId}?`)) {
+  if (!window.confirm(
+    `Are you sure you want to ${actionText} booking #${bookingId}?`
+  )) {
     return;
   }
 
@@ -334,30 +316,17 @@ tableBody.addEventListener("click", async event => {
   }
 });
 
-// Restore the dashboard for the current browser tab if still authorized.
 async function restoreSession() {
-  if (!adminCredentials) {
-    showLogin();
-    return;
-  }
-
   try {
-    await apiRequest("/admin/stats");
+    await loadStats();
     showDashboard();
-
-     await Promise.all([
-     refreshDashboard(),
-     loadFeedback()
-    ]);
-  } catch {
-    adminCredentials = "";
-    sessionStorage.removeItem("zoteAdminCredentials");
+    await Promise.all([loadBookings(), loadFeedback()]);
+  } catch (error) {
     showLogin();
   }
 }
 
 restoreSession();
-
 
 const feedbackTableBody = document.getElementById("feedback-table-body");
 const feedbackEmptyState = document.getElementById("feedback-empty-state");
@@ -436,4 +405,3 @@ async function loadFeedback() {
 if (refreshFeedbackButton) {
   refreshFeedbackButton.addEventListener("click", loadFeedback);
 }
-

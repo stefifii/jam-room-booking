@@ -1932,3 +1932,1885 @@ input[type="date"] {
     opacity: 0.6;
     cursor: wait;
 }
+
+
+/* FIND US SECTION */
+.find-us {
+  background: #f5f0e7;
+  color: #171612;
+  padding: 90px 8%;
+}
+
+.find-us-heading {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.find-us-label {
+  color: #a77b32;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 4px;
+}
+
+.find-us-heading h2 {
+  font-size: clamp(32px, 5vw, 52px);
+  margin: 16px 0;
+  font-weight: 700;
+}
+
+.find-us-heading h2 span {
+  color: #ad833d;
+}
+
+.find-us-heading p {
+  color: #716b61;
+  font-size: 16px;
+}
+
+.find-us-content {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  max-width: 1150px;
+  margin: 0 auto;
+  min-height: 380px;
+  border: 1px solid #d9cbb4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fffdf8;
+}
+
+.find-us-info {
+  padding: 45px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.find-us-icon {
+  color: #b38a42;
+  font-size: 38px;
+  margin-bottom: 12px;
+}
+
+.find-us-info h3 {
+  font-size: 25px;
+  margin: 0 0 14px;
+}
+
+.find-us-info p {
+  color: #6d675d;
+  line-height: 1.8;
+  margin-bottom: 28px;
+}
+
+.directions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  background: #171612;
+  color: #f5f0e7;
+  padding: 15px 23px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid #171612;
+  border-radius: 4px;
+  transition: background 0.25s, color 0.25s;
+}
+
+.directions-btn:hover {
+  background: #ad833d;
+  border-color: #ad833d;
+  color: #fff;
+}
+
+.find-us-map {
+  min-height: 380px;
+  background: #e5dfd4;
+}
+
+.find-us-map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .find-us {
+    padding: 65px 6%;
+  }
+
+  .find-us-content {
+    grid-template-columns: 1fr;
+  }
+
+  .find-us-info {
+    padding: 30px 25px;
+  }
+
+  .find-us-map,
+  .find-us-map iframe {
+    min-height: 300px;
+  }
+}
+
+
+/* MULTI-PAGE NAVIGATION */
+header nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+header .logo img {
+    width: 70px;
+    height: auto;
+    display: block;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 34px;
+}
+
+.nav-links a {
+    color: #f4f0e9;
+    text-decoration: none;
+    transition: color 0.25s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: #c6a56a;
+}
+
+/* EQUIPMENT PAGE */
+.equipment-hero {
+    background: #f4f0e9;
+    color: #171717;
+    padding: 85px 8% 55px;
+    text-align: center;
+}
+
+.section-label {
+    color: #a77b32;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 4px;
+}
+
+.equipment-hero h1 {
+    font-size: clamp(38px, 5vw, 64px);
+    margin: 20px 0;
+}
+
+.equipment-hero h1 span {
+    color: #ad833d;
+}
+
+.equipment-hero > p:last-child {
+    color: #716b61;
+    line-height: 1.7;
+}
+
+.equipment-gallery {
+    background: #f4f0e9;
+    padding: 25px 8% 85px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+}
+
+.equipment-card {
+    background: #fffdf8;
+    border: 1px solid #dfd3c0;
+    border-radius: 10px;
+    overflow: hidden;
+    padding-bottom: 24px;
+    transition: transform 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
+.equipment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(23, 23, 23, 0.08);
+}
+
+.equipment-card img {
+    display: block;
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+}
+
+.equipment-card h2 {
+    margin: 22px 22px 10px;
+    font-size: 21px;
+    color: #171717;
+}
+
+.equipment-card p {
+    margin: 0 22px;
+    color: #716b61;
+    line-height: 1.7;
+}
+
+.equipment-cta {
+    background: #171717;
+    color: #f4f0e9;
+    text-align: center;
+    padding: 65px 20px;
+}
+
+.equipment-cta h2 {
+    margin: 0 0 25px;
+    font-size: clamp(26px, 4vw, 38px);
+}
+
+@media (max-width: 850px) {
+    .equipment-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .nav-links {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    header nav {
+        flex-wrap: wrap;
+        padding: 15px 5%;
+    }
+
+    .nav-links {
+        order: 3;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 18px;
+    }
+
+    .equipment-gallery {
+        grid-template-columns: 1fr;
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
+    .equipment-card img {
+        height: 260px;
+    }
+}
+
+
+/* LOCATION PAGE */
+.location-page {
+    background: #f4f0e9;
+    color: #171717;
+    min-height: 80vh;
+}
+
+.location-hero {
+    text-align: center;
+    padding: 65px 6% 45px;
+}
+
+.location-hero h1 {
+    font-size: clamp(34px, 5vw, 64px);
+    margin: 22px 0;
+}
+
+.location-hero h1 span {
+    color: #ad833d;
+}
+
+.location-hero > p:last-child {
+    color: #716b61;
+    font-size: 18px;
+}
+
+.location-content {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    max-width: 1250px;
+    min-height: 420px;
+    margin: 0 auto 80px;
+    border: 1px solid #dfd3c0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fffdf8;
+}
+
+.location-info {
+    padding: 45px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.location-icon {
+    font-size: 40px;
+    color: #ad833d;
+    margin-bottom: 15px;
+}
+
+.location-info h2 {
+    font-size: 28px;
+    margin: 0 0 15px;
+}
+
+.location-info p {
+    color: #716b61;
+    line-height: 1.8;
+    margin-bottom: 28px;
+}
+
+.directions-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    background: #171717;
+    color: #f4f0e9;
+    text-decoration: none;
+    padding: 17px 25px;
+    border: 1px solid #171717;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: 0.25s ease;
+}
+
+.directions-btn:hover {
+    background: #ad833d;
+    border-color: #ad833d;
+    color: #fff;
+}
+
+.location-map {
+    min-height: 420px;
+    background: #e5dfd4;
+}
+
+.location-map iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 420px;
+    border: 0;
+    display: block;
+}
+
+.location-cta {
+    background: #171717;
+    color: #f4f0e9;
+    text-align: center;
+    padding: 65px 20px;
+}
+
+.location-cta h2 {
+    font-size: clamp(26px, 4vw, 38px);
+    margin-bottom: 15px;
+}
+
+.location-cta p {
+    color: #d1c9bc;
+    margin-bottom: 28px;
+}
+
+@media (max-width: 768px) {
+    .location-content {
+        grid-template-columns: 1fr;
+        margin: 0 5% 55px;
+    }
+
+    .location-info {
+        padding: 32px 25px;
+    }
+
+    .location-map,
+    .location-map iframe {
+        min-height: 320px;
+    }
+}
+
+/* BACK TO HOME LINK */
+.back-home {
+    color: #c9bda8;
+    text-decoration: none;
+    font-size: 15px;
+    white-space: nowrap;
+    display: inline-block;
+    flex-shrink: 0;
+    margin-right: 25px;
+    padding: 10px 0 10px 10px;
+    transition: color 0.3s ease;
+}
+
+.back-home:hover {
+    color: #c6a56a;
+}
+
+header nav {
+    box-sizing: border-box;
+    width: 100%;
+    padding-right: 30px;
+    gap: 20px;
+}
+
+header nav .logo {
+    flex-shrink: 0;
+}
+
+.nav-links {
+    flex: 1;
+    min-width: 0;
+}
+
+
+/* EQUIPMENT PAGE HERO */
+.equipment-hero {
+    background: #f4f0e9;
+    color: #171717;
+    text-align: center;
+    padding: 75px 8% 65px;
+}
+
+.equipment-hero .eyebrow {
+    color: #ad833d;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 4px;
+}
+
+.equipment-hero h1 {
+    font-size: clamp(42px, 6vw, 76px);
+    line-height: 1.1;
+    margin: 25px 0;
+}
+
+.equipment-hero h1 em {
+    color: #ad833d;
+    font-style: normal;
+}
+
+.equipment-hero > p:last-child {
+    color: #716b61;
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+/* EQUIPMENT LIST */
+.equipment {
+    background: #f4f0e9;
+    padding: 0 8% 80px;
+}
+
+.equipment-card {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: stretch;
+    margin-bottom: 35px;
+    background: #fffdf8;
+    border: 1px solid #dfd3c0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.equipment-card.reverse .equipment-image {
+    order: 2;
+}
+
+.equipment-card.reverse .equipment-info {
+    order: 1;
+}
+
+.equipment-gallery {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 5px;
+    min-height: 350px;
+    background: #e8dfd2;
+}
+
+.gallery-main,
+.gallery-small,
+.equipment-image {
+    min-width: 0;
+    min-height: 350px;
+    overflow: hidden;
+}
+
+.gallery-main img,
+.gallery-small img,
+.equipment-image img {
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    display: block;
+    object-fit: cover;
+}
+
+.equipment-info {
+    padding: clamp(25px, 4vw, 55px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.equipment-number {
+    color: #ad833d;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+.equipment-info h2 {
+    color: #171717;
+    font-size: clamp(25px, 3vw, 36px);
+    margin: 18px 0;
+}
+
+.equipment-info p {
+    color: #716b61;
+    line-height: 1.8;
+}
+
+.equipment-info ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.equipment-info li {
+    padding: 10px 0;
+    border-bottom: 1px solid #e8dfd2;
+    color: #292722;
+    line-height: 1.5;
+}
+
+.equipment-info li::before {
+    content: "— ";
+    color: #ad833d;
+}
+
+/* EQUIPMENT BOOKING CTA */
+.equipment-cta {
+    background: #171717;
+    color: #f4f0e9;
+    text-align: center;
+    padding: 70px 20px;
+}
+
+.equipment-cta .eyebrow {
+    color: #c6a56a;
+    letter-spacing: 4px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.equipment-cta h2 {
+    font-size: clamp(28px, 4vw, 42px);
+    margin: 18px 0 30px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 760px) {
+    .equipment-hero {
+        padding: 55px 6% 45px;
+    }
+
+    .equipment {
+        padding: 0 5% 55px;
+    }
+
+    .equipment-card,
+    .equipment-card.reverse {
+        grid-template-columns: 1fr;
+    }
+
+    .equipment-card.reverse .equipment-image,
+    .equipment-card.reverse .equipment-info {
+        order: initial;
+    }
+
+    .equipment-gallery {
+        min-height: 280px;
+    }
+
+    .gallery-main,
+    .gallery-small,
+    .equipment-image,
+    .gallery-main img,
+    .gallery-small img,
+    .equipment-image img {
+        min-height: 280px;
+    }
+
+    .equipment-info {
+        padding: 28px;
+    }
+}
+
+
+/* ===== EQUIPMENT PAGE ===== */
+.equipment-page {
+    background: #f4f0e9;
+    color: #171717;
+}
+
+.equipment-hero {
+    text-align: center;
+    padding: 75px 6% 65px;
+}
+
+.equipment-hero .eyebrow,
+.gear-heading .equipment-number,
+.gear-label {
+    color: #ad833d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+.equipment-hero h1 {
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: 1.1;
+    margin: 25px 0;
+}
+
+.equipment-hero h1 span {
+    color: #ad833d;
+}
+
+.equipment-hero > p:last-child {
+    color: #716b61;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.gear-section {
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 35px 6% 45px;
+}
+
+.gear-heading {
+    margin-bottom: 28px;
+}
+
+.gear-heading h2 {
+    font-size: clamp(30px, 4vw, 46px);
+    margin: 14px 0 0;
+}
+
+.gear-heading h2 em {
+    color: #ad833d;
+    font-style: normal;
+}
+
+.gear-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #fffdf8;
+    border: 1px solid #dfd3c0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.gear-image {
+    min-height: 390px;
+    background: #e9dfd1;
+    overflow: hidden;
+}
+
+.gear-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 390px;
+    object-fit: cover;
+}
+
+.gear-reverse .gear-image {
+    order: 2;
+}
+
+.gear-reverse .gear-details {
+    order: 1;
+}
+
+.gear-details {
+    padding: clamp(25px, 4vw, 48px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.gear-label {
+    margin: 0 0 10px;
+}
+
+.gear-details h3 {
+    font-size: clamp(22px, 2.5vw, 30px);
+    margin: 8px 0 16px;
+    line-height: 1.3;
+}
+
+.gear-details p:not(.gear-label) {
+    color: #716b61;
+    line-height: 1.8;
+}
+
+.gear-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+}
+
+.gear-details li {
+    color: #4f4a42;
+    line-height: 1.7;
+    padding: 9px 0;
+    border-bottom: 1px solid #e9e1d5;
+}
+
+.gear-details li::before {
+    content: "— ";
+    color: #ad833d;
+}
+
+.gear-divider {
+    height: 1px;
+    background: #dfd3c0;
+    margin: 25px 0;
+}
+
+.equipment-cta {
+    background: #171717;
+    color: #f4f0e9;
+    text-align: center;
+    padding: 75px 20px;
+    margin-top: 35px;
+}
+
+.equipment-cta .eyebrow {
+    color: #c6a56a;
+    letter-spacing: 3px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.equipment-cta h2 {
+    font-size: clamp(30px, 4vw, 44px);
+    margin: 20px 0 15px;
+}
+
+.equipment-cta > p:not(.eyebrow) {
+    color: #d1c9bc;
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+.gear-book-btn {
+    display: inline-block;
+    padding: 16px 28px;
+    background: #ad833d;
+    color: #fffdf8;
+    border: 1px solid #ad833d;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.25s ease;
+}
+
+.gear-book-btn:hover {
+    background: #8d692e;
+}
+
+/* MOBILE */
+@media (max-width: 760px) {
+    .equipment-hero {
+        padding: 55px 6% 40px;
+    }
+
+    .gear-section {
+        padding: 25px 5% 30px;
+    }
+
+    .gear-card {
+        grid-template-columns: 1fr;
+    }
+
+    .gear-reverse .gear-image,
+    .gear-reverse .gear-details {
+        order: initial;
+    }
+
+    .gear-image,
+    .gear-image img {
+        min-height: 280px;
+        height: 280px;
+    }
+
+    .gear-details {
+        padding: 28px;
+    }
+}
+
+
+/* ===== PREMIUM EQUIPMENT IMAGE EFFECTS ===== */
+
+.gear-card {
+    position: relative;
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
+}
+
+.gear-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 40px rgba(36, 28, 17, 0.10);
+    border-color: #c6a56a;
+}
+
+/* Image container */
+.gear-image {
+    position: relative;
+    overflow: hidden;
+    background: #e8dfd2;
+}
+
+/* Smooth, elegant image movement */
+.gear-image img {
+    transition:
+        transform 0.7s cubic-bezier(0.2, 0.65, 0.3, 1),
+        filter 0.5s ease;
+    transform: scale(1.01);
+    will-change: transform;
+}
+
+.gear-card:hover .gear-image img {
+    transform: scale(1.055);
+    filter: brightness(1.04);
+}
+
+/* Subtle gold accent line */
+.gear-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: #ad833d;
+    transition: width 0.45s ease;
+}
+
+.gear-card:hover::after {
+    width: 100%;
+}
+
+/* Refined equipment headings */
+.gear-details h3 {
+    transition: color 0.3s ease;
+}
+
+.gear-card:hover .gear-details h3 {
+    color: #9a7335;
+}
+
+/* Keep the movement comfortable on mobile */
+@media (hover: none) {
+    .gear-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .gear-card:hover .gear-image img {
+        transform: none;
+        filter: none;
+    }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .gear-card,
+    .gear-image img,
+    .gear-card::after,
+    .gear-details h3 {
+        transition: none;
+    }
+}
+
+
+/* Tighter crop for the Yamaha + Blackstar photo */
+.gear-card.gear-reverse .gear-image img {
+    object-fit: cover;
+    object-position: center 48%;
+}
+
+/* Keep equipment photos consistently framed */
+.gear-image {
+    overflow: hidden;
+}
+
+.gear-image img {
+    width: 100%;
+    height: 100%;
+    min-height: 390px;
+    object-fit: cover;
+}
+
+/* Slightly shorter photo on desktop */
+@media (min-width: 761px) {
+    .gear-card.gear-reverse .gear-image,
+    .gear-card.gear-reverse .gear-image img {
+        min-height: 350px;
+    }
+}
+
+
+/* ==================================================
+   ZOTE JAM ROOM — EQUIPMENT PAGE
+   ================================================== */
+
+.equipment-header {
+    width: 100%;
+    background: #171717;
+    color: #f4f0e9;
+    border-bottom: 1px solid rgba(198, 165, 106, 0.18);
+}
+
+.equipment-nav {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100px;
+    padding: 14px 4%;
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr) 180px;
+    align-items: center;
+    gap: 20px;
+}
+
+.equipment-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.equipment-logo img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    display: block;
+}
+
+.equipment-nav .nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(15px, 3vw, 40px);
+    min-width: 0;
+}
+
+.equipment-nav .nav-links a {
+    color: #f4f0e9;
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.25s ease;
+}
+
+.equipment-nav .nav-links a:hover,
+.equipment-nav .nav-links a.active {
+    color: #c6a56a;
+}
+
+.equipment-nav .back-home {
+    justify-self: end;
+    color: #c9bda8;
+    text-decoration: none;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: color 0.25s ease;
+}
+
+.equipment-nav .back-home:hover {
+    color: #c6a56a;
+}
+
+
+/* PAGE BASE */
+
+.equipment-page {
+    background: #f4f0e9;
+    color: #171717;
+}
+
+.equipment-page * {
+    box-sizing: border-box;
+}
+
+
+/* HERO */
+
+.equipment-page .equipment-hero {
+    text-align: center;
+    padding: 80px 6% 65px;
+}
+
+.equipment-page .eyebrow {
+    color: #ad833d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    line-height: 1.7;
+}
+
+.equipment-page .equipment-hero h1 {
+    font-size: clamp(38px, 5.5vw, 72px);
+    line-height: 1.12;
+    margin: 24px 0;
+    font-weight: 700;
+}
+
+.equipment-page .equipment-hero h1 span {
+    color: #ad833d;
+}
+
+.equipment-page .equipment-hero > p:last-child {
+    color: #716b61;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+
+/* EQUIPMENT SECTIONS */
+
+.equipment-page .gear-section {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 35px 5% 45px;
+}
+
+.equipment-page .gear-heading {
+    margin-bottom: 28px;
+}
+
+.equipment-page .gear-heading .equipment-number {
+    color: #ad833d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+.equipment-page .gear-heading h2 {
+    font-size: clamp(30px, 4vw, 46px);
+    line-height: 1.2;
+    margin: 15px 0 0;
+    font-weight: 650;
+}
+
+.equipment-page .gear-heading h2 em {
+    color: #ad833d;
+    font-style: normal;
+}
+
+
+/* CARDS */
+
+.equipment-page .gear-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    margin-bottom: 28px;
+    overflow: hidden;
+    background: #fffdf8;
+    border: 1px solid #dfd3c0;
+    border-radius: 10px;
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
+}
+
+.equipment-page .gear-card:hover {
+    transform: translateY(-4px);
+    border-color: #c6a56a;
+    box-shadow: 0 16px 35px rgba(36, 28, 17, 0.09);
+}
+
+.equipment-page .gear-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: #ad833d;
+    transition: width 0.4s ease;
+}
+
+.equipment-page .gear-card:hover::after {
+    width: 100%;
+}
+
+
+/* IMAGE AREA */
+
+.equipment-page .gear-image {
+    position: relative;
+    min-width: 0;
+    min-height: 390px;
+    overflow: hidden;
+    background: #e8dfd2;
+}
+
+.equipment-page .gear-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 390px;
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.01);
+    transition:
+        transform 0.7s cubic-bezier(0.2, 0.65, 0.3, 1),
+        filter 0.5s ease;
+}
+
+.equipment-page .gear-card:hover .gear-image img {
+    transform: scale(1.055);
+    filter: brightness(1.04);
+}
+
+
+/* YAMAHA IMAGE: CROP TOP AND BOTTOM */
+
+.equipment-page .yamaha-image img {
+    object-position: center 48%;
+}
+
+/* Reverse cards: image on right, text on left */
+
+.equipment-page .gear-reverse .gear-image {
+    order: 2;
+}
+
+.equipment-page .gear-reverse .gear-details {
+    order: 1;
+}
+
+
+/* SPECIFICATIONS */
+
+.equipment-page .gear-details {
+    min-width: 0;
+    padding: clamp(25px, 3.5vw, 46px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.equipment-page .gear-label {
+    margin: 0 0 10px;
+    color: #ad833d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    line-height: 1.7;
+}
+
+.equipment-page .gear-details h3 {
+    color: #171717;
+    font-size: clamp(22px, 2.5vw, 30px);
+    font-weight: 650;
+    line-height: 1.3;
+    margin: 7px 0 16px;
+    overflow-wrap: anywhere;
+    transition: color 0.3s ease;
+}
+
+.equipment-page .gear-card:hover .gear-details h3 {
+    color: #9a7335;
+}
+
+.equipment-page .gear-details p:not(.gear-label) {
+    color: #716b61;
+    font-size: 14px;
+    line-height: 1.9;
+    margin: 0 0 12px;
+}
+
+.equipment-page .gear-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+}
+
+.equipment-page .gear-details li {
+    color: #4f4a42;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9e1d5;
+}
+
+.equipment-page .gear-details li::before {
+    content: "— ";
+    color: #ad833d;
+}
+
+.equipment-page .gear-divider {
+    height: 1px;
+    width: 100%;
+    background: #dfd3c0;
+    margin: 25px 0;
+}
+
+
+/* BOOKING CTA */
+
+.equipment-page .equipment-cta {
+    background: #171717;
+    color: #f4f0e9;
+    text-align: center;
+    padding: 75px 20px;
+    margin-top: 35px;
+}
+
+.equipment-page .equipment-cta .eyebrow {
+    color: #c6a56a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+.equipment-page .equipment-cta h2 {
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.2;
+    margin: 20px 0 15px;
+}
+
+.equipment-page .equipment-cta > p:not(.eyebrow) {
+    max-width: 600px;
+    margin: 0 auto 28px;
+    color: #d1c9bc;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.equipment-page .gear-book-btn {
+    display: inline-block;
+    padding: 16px 28px;
+    background: #ad833d;
+    color: #fffdf8;
+    border: 1px solid #ad833d;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease;
+}
+
+.equipment-page .gear-book-btn:hover {
+    background: #8d692e;
+    transform: translateY(-2px);
+}
+
+
+/* FOOTER */
+
+.equipment-footer {
+    background: #171717;
+    color: #f4f0e9;
+    padding: 30px 5% 20px;
+    border-top: 1px solid rgba(198, 165, 106, 0.2);
+}
+
+.equipment-footer .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 24px;
+}
+
+.equipment-footer .footer-brand img {
+    display: block;
+    width: 65px;
+    height: auto;
+}
+
+.equipment-footer .footer-top > p {
+    color: #c9bda8;
+    font-size: 14px;
+}
+
+.equipment-footer .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-top: 1px solid rgba(201, 189, 168, 0.18);
+    padding-top: 18px;
+    color: #c9bda8;
+    font-size: 12px;
+}
+
+
+/* TABLETS */
+
+@media (max-width: 900px) {
+    .equipment-nav {
+        grid-template-columns: 70px minmax(0, 1fr) auto;
+        gap: 14px;
+        padding: 14px 3%;
+    }
+
+    .equipment-nav .nav-links {
+        gap: 15px;
+    }
+
+    .equipment-nav .nav-links a,
+    .equipment-nav .back-home {
+        font-size: 12px;
+    }
+
+    .equipment-page .gear-details {
+        padding: 25px;
+    }
+}
+
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+    .equipment-nav {
+        grid-template-columns: 55px minmax(0, 1fr);
+        gap: 10px;
+        padding: 12px 4%;
+    }
+
+    .equipment-logo img {
+        width: 52px;
+        height: 52px;
+    }
+
+    .equipment-nav .nav-links {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+    }
+
+    .equipment-nav .nav-links a {
+        font-size: 11px;
+    }
+
+    .equipment-nav .back-home {
+        grid-column: 2;
+        justify-self: end;
+        font-size: 12px;
+    }
+
+    .equipment-page .equipment-hero {
+        padding: 55px 6% 40px;
+    }
+
+    .equipment-page .gear-section {
+        padding: 25px 5% 30px;
+    }
+
+    .equipment-page .gear-card {
+        grid-template-columns: 1fr;
+    }
+
+    .equipment-page .gear-reverse .gear-image,
+    .equipment-page .gear-reverse .gear-details {
+        order: initial;
+    }
+
+    .equipment-page .gear-image,
+    .equipment-page .gear-image img {
+        min-height: 0;
+        height: 280px;
+    }
+
+    .equipment-page .yamaha-image img {
+        object-position: center 48%;
+    }
+
+    .equipment-page .gear-details {
+        padding: 26px;
+    }
+
+    .equipment-page .equipment-cta {
+        padding: 55px 6%;
+    }
+
+    .equipment-footer .footer-top {
+        align-items: flex-start;
+    }
+}
+
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+    .equipment-page .gear-card,
+    .equipment-page .gear-image img,
+    .equipment-page .gear-card::after,
+    .equipment-page .gear-details h3,
+    .equipment-page .gear-book-btn {
+        transition: none;
+    }
+
+    .equipment-page .gear-card:hover {
+        transform: none;
+    }
+
+    .equipment-page .gear-card:hover .gear-image img {
+        transform: none;
+    }
+}
+
+
+/* ===== FIX EQUIPMENT IMAGE AND CARD HEIGHTS ===== */
+
+/* Stop equipment cards from stretching unnecessarily */
+.equipment-page .gear-card {
+    align-items: stretch;
+    height: auto;
+    min-height: 0;
+}
+
+/* Give photos a controlled height on desktop */
+@media (min-width: 651px) {
+    .equipment-page .gear-image {
+        height: 460px;
+        min-height: 0;
+        align-self: stretch;
+    }
+
+    .equipment-page .gear-image img {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    /* Yamaha: crop a little more from top and bottom */
+    .equipment-page .yamaha-image img {
+        object-position: center 48%;
+    }
+
+    /* Keep the bass photo framed consistently */
+    .equipment-page .gear-card:not(.gear-reverse) .gear-image img {
+        object-position: center;
+    }
+}
+
+/* Keep the image and text panel tidy on mobile */
+@media (max-width: 650px) {
+    .equipment-page .gear-image,
+    .equipment-page .gear-image img {
+        height: 280px;
+        min-height: 0;
+    }
+}
+
+
+/* ===== MATCH IMAGE HEIGHT TO FULL EQUIPMENT CARD ===== */
+
+@media (min-width: 651px) {
+    .equipment-page .gear-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+        height: auto;
+        min-height: 0;
+    }
+
+    .equipment-page .gear-image {
+        height: auto;
+        min-height: 0;
+        align-self: stretch;
+        overflow: hidden;
+    }
+
+    .equipment-page .gear-image img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    /* Yamaha photo: adjust the crop without changing card height */
+    .equipment-page .yamaha-image img {
+    object-fit: cover;
+    object-position: center;
+}
+
+    /* Keep alternating image placement */
+    .equipment-page .gear-reverse .gear-image {
+        order: 2;
+    }
+
+    .equipment-page .gear-reverse .gear-details {
+        order: 1;
+    }
+}
+
+/* CONSISTENT OUTER BORDER — ALL PAGES */
+
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    border: 2px solid #171717;
+    box-sizing: border-box;
+}
+
+.equipment-page,
+.location-page {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+.studio-address {
+    margin: 28px 0;
+    padding-left: 16px;
+    border-left: 2px solid #ad8745;
+}
+
+.studio-address span {
+    color: #ad8745;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.studio-address p {
+    margin-top: 10px;
+    color: #292723;
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.directions-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 28px;
+    background: #171614;
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid #171614;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background 0.25s, color 0.25s;
+}
+
+.directions-btn:hover {
+    background: #ad8745;
+    border-color: #ad8745;
+    color: #fff;
+}
+
+/* ================= LOCATION PAGE ================= */
+
+.location-page {
+    margin: 0;
+    background: #f3efe7;
+    color: #191817;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.location-page * {
+    box-sizing: border-box;
+}
+
+.location-page .equipment-header {
+    width: 100%;
+    background: #171717;
+}
+
+.location-page .equipment-nav {
+    min-height: 100px;
+    padding: 12px 4.5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+}
+
+.location-page .equipment-logo img {
+    display: block;
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+}
+
+.location-page .equipment-nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 38px;
+}
+
+.location-page .equipment-nav-links a,
+.location-page .back-home {
+    color: #f3efe7;
+    text-decoration: none;
+    font-size: 15px;
+    letter-spacing: 1px;
+    transition: color 0.2s ease;
+}
+
+.location-page .equipment-nav-links a:hover,
+.location-page .equipment-nav-links a.active,
+.location-page .back-home:hover {
+    color: #ad8745;
+}
+
+.location-page .back-home {
+    white-space: nowrap;
+    letter-spacing: 0;
+}
+
+.location-hero {
+    text-align: center;
+    padding: 65px 24px 55px;
+}
+
+.location-eyebrow {
+    color: #ad8745;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 5px;
+}
+
+.location-hero h1 {
+    margin: 48px auto 28px;
+    max-width: 1200px;
+    font-size: clamp(36px, 5.2vw, 76px);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.location-hero h1 span {
+    color: #ad8745;
+}
+
+.location-subtitle {
+    color: #777168;
+    font-size: 20px;
+    line-height: 1.6;
+}
+
+.location-section {
+    width: 100%;
+    max-width: 1500px;
+    padding: 0 5% 70px;
+    margin: 0 auto;
+}
+
+.location-card {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    overflow: hidden;
+    background: #fffdf8;
+    border: 1px solid #ded2bf;
+    border-radius: 18px;
+}
+
+.location-info {
+    padding: clamp(28px, 4vw, 60px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.location-icon {
+    color: #ad8745;
+    font-size: 32px;
+    margin-bottom: 22px;
+}
+
+.location-info h2 {
+    font-size: clamp(25px, 2.3vw, 36px);
+    margin: 0 0 22px;
+    line-height: 1.25;
+}
+
+.location-description {
+    color: #777168;
+    font-size: 17px;
+    line-height: 1.8;
+    margin: 0;
+}
+
+.studio-address {
+    width: 100%;
+    margin: 28px 0;
+    padding-left: 16px;
+    border-left: 2px solid #ad8745;
+}
+
+.studio-address > span {
+    color: #ad8745;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.studio-address p {
+    color: #292723;
+    font-size: 15px;
+    line-height: 1.8;
+    margin: 10px 0 0;
+    overflow-wrap: anywhere;
+}
+
+.directions-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 28px;
+    background: #171614;
+    color: #fffdf8;
+    text-decoration: none;
+    border: 1px solid #171614;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background 0.25s ease;
+}
+
+.directions-btn:hover {
+    background: #ad8745;
+    border-color: #ad8745;
+}
+
+.location-map {
+    min-height: 480px;
+    position: relative;
+    overflow: hidden;
+    background: #e5e1d8;
+}
+
+.location-map iframe {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.location-footer {
+    padding: 30px 5%;
+    background: #171717;
+    color: #f3efe7;
+}
+
+.location-footer-top,
+.location-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.location-footer-top img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.location-footer-top p,
+.location-footer-bottom span {
+    color: #c7bca8;
+}
+
+.location-footer-bottom {
+    border-top: 1px solid #3c3933;
+    margin-top: 20px;
+    padding-top: 20px;
+    font-size: 13px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 800px) {
+    .location-page .equipment-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .location-page .equipment-nav-links {
+        order: 3;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .location-page .back-home {
+        margin-left: auto;
+    }
+
+    .location-card {
+        grid-template-columns: 1fr;
+    }
+
+    .location-map {
+        min-height: 380px;
+    }
+}
+
+@media (max-width: 480px) {
+    .location-hero {
+        padding: 45px 18px 35px;
+    }
+
+    .location-eyebrow {
+        letter-spacing: 3px;
+    }
+
+    .location-section {
+        padding: 0 16px 45px;
+    }
+
+    .location-info {
+        padding: 28px 24px;
+    }
+
+    .location-map {
+        min-height: 320px;
+    }
+
+    .location-footer-top,
+    .location-footer-bottom {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

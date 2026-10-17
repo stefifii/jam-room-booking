@@ -10,10 +10,10 @@ from typing import Literal
 import mysql.connector
 import razorpay
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends, Header, Request
+from fastapi import FastAPI, HTTPException, Depends, Header, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
  
  
 # --------------------------------------------------
@@ -35,9 +35,9 @@ app.add_middleware(
         "http://127.0.0.1:5500",
         "http://localhost:5500",
     ],
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["Content-Type"],
 )
  
  
@@ -57,8 +57,6 @@ def get_razorpay_client():
             status_code=503,
             detail="Payment gateway is not configured.",
         )
-    print("Razorpay Key ID:", RAZORPAY_KEY_ID[:12] if RAZORPAY_KEY_ID else "MISSING")
-    print("Razorpay Test Mode:", RAZORPAY_KEY_ID.startswith("rzp_test_") if RAZORPAY_KEY_ID else False) 
  
     return razorpay.Client(
         auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET)
@@ -819,58 +817,121 @@ def cancel_payment_checkout(data: PaymentCancellation):
 
 
 # --------------------------------------------------
-# ADMIN AUTHENTICATION
-# Keep this BEFORE all routes that use verify_admin.
+# ADMIN AUTHENTICATION - COOKIE SESSION
 # --------------------------------------------------
- 
-admin_security = HTTPBasic()
- 
- 
-def verify_admin(
-    credentials: HTTPBasicCredentials = Depends(admin_security),
-):
+
+ADMIN_SESSION_COOKIE = "zote_admin_session"
+ADMIN_SESSION_MAX_AGE = 30 * 60  # 30 minutes
+ADMIN_ALLOWED_ORIGINS = {
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+}
+
+
+class AdminLoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+def get_admin_serializer():
+    secret = os.getenv("ADMIN_SESSION_SECRET", "")
+    if len(secret) < 32:
+        raise HTTPException(
+            status_code=503,
+            detail="Admin session security is not configured.",
+        )
+    return URLSafeTimedSerializer(secret, salt="zote-admin-session-v1")
+
+
+def verify_admin(request: Request):
+    # Validate Origin on requests that change admin data.
+    if request.method in {"POST", "PATCH", "PUT", "DELETE"}:
+        origin = request.headers.get("origin", "")
+        if origin not in ADMIN_ALLOWED_ORIGINS:
+            raise HTTPException(status_code=403, detail="Invalid request origin.")
+
+    token = request.cookies.get(ADMIN_SESSION_COOKIE)
+    if not token:
+        raise HTTPException(status_code=401, detail="Please sign in.")
+
+    try:
+        payload = get_admin_serializer().loads(token, max_age=ADMIN_SESSION_MAX_AGE)
+    except SignatureExpired:
+        raise HTTPException(status_code=401, detail="Session expired. Please sign in again.")
+    except BadSignature:
+        raise HTTPException(status_code=401, detail="Invalid session.")
+    except HTTPException:
+        raise
+
+    expected_username = os.getenv("ADMIN_USERNAME", "")
+    if not expected_username or payload.get("username") != expected_username:
+        raise HTTPException(status_code=401, detail="Invalid session.")
+    return True
+
+
+@app.post("/admin/login")
+def admin_login(data: AdminLoginRequest, request: Request, response: Response):
+    origin = request.headers.get("origin", "")
+    if origin not in ADMIN_ALLOWED_ORIGINS:
+        raise HTTPException(status_code=403, detail="Invalid request origin.")
+
     expected_username = os.getenv("ADMIN_USERNAME", "")
     expected_password = os.getenv("ADMIN_PASSWORD", "")
- 
-    username_ok = secrets.compare_digest(
-        credentials.username,
-        expected_username,
+    if not expected_username or not expected_password:
+        raise HTTPException(status_code=503, detail="Admin authentication is not configured.")
+
+    username_ok = secrets.compare_digest(data.username, expected_username)
+    password_ok = secrets.compare_digest(data.password, expected_password)
+    if not (username_ok and password_ok):
+        raise HTTPException(status_code=401, detail="Invalid username or password.")
+
+    token = get_admin_serializer().dumps({"username": expected_username})
+    secure_cookie = os.getenv("ADMIN_COOKIE_SECURE", "false").lower() == "true"
+    response.set_cookie(
+        key=ADMIN_SESSION_COOKIE,
+        value=token,
+        max_age=ADMIN_SESSION_MAX_AGE,
+        httponly=True,
+        secure=secure_cookie,
+        samesite="lax",
+        path="/",
     )
-    password_ok = secrets.compare_digest(
-        credentials.password,
-        expected_password,
+    return {"message": "Signed in successfully."}
+
+
+@app.post("/admin/logout")
+def admin_logout(request: Request, response: Response):
+    origin = request.headers.get("origin", "")
+    if origin not in ADMIN_ALLOWED_ORIGINS:
+        raise HTTPException(status_code=403, detail="Invalid request origin.")
+
+    response.delete_cookie(
+        key=ADMIN_SESSION_COOKIE,
+        httponly=True,
+        secure=os.getenv("ADMIN_COOKIE_SECURE", "false").lower() == "true",
+        samesite="lax",
+        path="/",
     )
- 
-    if (
-        not expected_username
-        or not expected_password
-        or not username_ok
-        or not password_ok
-    ):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid admin credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
- 
-    return True
- 
- 
+    return {"message": "Signed out successfully."}
+
+
+# --------------------------------------------------
+# ADMIN BOOKINGS LIST
+# --------------------------------------------------
 # --------------------------------------------------
 # ADMIN STATISTICS
 # --------------------------------------------------
- 
+
 @app.get("/admin/stats")
 def admin_stats(_: bool = Depends(verify_admin)):
     connection = None
     cursor = None
- 
+
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
- 
-        cursor.execute(
-            """
+
+        cursor.execute("""
             SELECT
                 COUNT(*) AS total_bookings,
                 COALESCE(SUM(
@@ -883,28 +944,26 @@ def admin_stats(_: bool = Depends(verify_admin)):
                     AND Booking_Date >= CURDATE()
                 ), 0) AS upcoming_bookings
             FROM BOOKING
-            """
-        )
- 
+        """)
+
         result = cursor.fetchone()
-        return {key: int(value or 0) for key, value in result.items()}
- 
+        return {
+            key: int(value or 0)
+            for key, value in result.items()
+        }
+
     except mysql.connector.Error:
         raise HTTPException(
-            500,
-            "Could not retrieve dashboard statistics.",
+            status_code=500,
+            detail="Could not retrieve dashboard statistics.",
         )
+
     finally:
         if cursor:
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
- 
- 
-# --------------------------------------------------
-# ADMIN BOOKINGS LIST
-# --------------------------------------------------
- 
+
 @app.get("/admin/bookings")
 def admin_bookings(_: bool = Depends(verify_admin)):
     connection = None
