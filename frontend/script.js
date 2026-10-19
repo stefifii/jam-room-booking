@@ -1,6 +1,37 @@
 console.log("ZOTE SCRIPT LOADED — VERSION CHECK 1");
 const API_URL = "https://jam-room-booking.onrender.com";
 
+function isSlotInPast(slotLabel, dateString) {
+    const now = new Date();
+    const today = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0")
+    ].join("-");
+
+    if (dateString !== today) return false;
+
+    const match = slotLabel.match(
+        /(\d{1,2})\s*(AM|PM)\s*[-–—]\s*(\d{1,2})\s*(AM|PM)/i
+    );
+
+    if (!match) return false;
+
+    let endHour = parseInt(match[3], 10);
+    const endPeriod = match[4].toUpperCase();
+
+    if (endPeriod === "AM" && endHour === 12) {
+        endHour = 0;
+    } else if (endPeriod === "PM" && endHour !== 12) {
+        endHour += 12;
+    }
+
+    const slotEnd = new Date(dateString + "T00:00:00");
+    slotEnd.setHours(endHour, 0, 0, 0);
+
+    return slotEnd <= now;
+}
+
 const bookingDate = document.getElementById("booking-date");
 
 if (bookingDate) {
@@ -219,17 +250,20 @@ async function loadAvailability(dateString) {
             );
         }
 
-        if (data.closed) {
-            resetSlots("The studio is closed on this date.");
-            return;
-        }
+ const available = matchingSlot.available === true;
+const alreadyPassed = isSlotInPast(
+    button.textContent.trim(),
+    dateString
+);
 
-        if (!Array.isArray(data.slots)) {
-            throw new Error(
-                "Unexpected availability response from the server."
-            );
-        }
+const canBook = available && !alreadyPassed;
 
+button.dataset.available = String(canBook);
+button.disabled = !canBook;
+
+if (canBook) {
+    availableCount++;
+}
         let availableCount = 0;
 
         timeSlots.forEach(button => {

@@ -3992,3 +3992,97 @@ body {
     position: static;
   }
 }
+
+
+/* LOCATION NAVBAR — match the Equipment page layout on all screens */
+.location-page .equipment-header {
+    position: relative;
+    width: 100%;
+    background: #171717;
+}
+.location-page .equipment-nav {
+    width: 100%;
+    max-width: 1500px;
+    min-height: 100px;
+    margin: 0 auto;
+    padding: 12px 4.5%;
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 24px;
+}
+.location-page .equipment-logo {
+    display: block;
+    width: 76px;
+    height: 76px;
+}
+.location-page .equipment-logo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.location-page .equipment-nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 34px;
+    min-width: 0;
+}
+.location-page .equipment-nav-links a,
+.location-page .back-home {
+    color: #f3efe7;
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+.location-page .back-home {
+    justify-self: end;
+    padding: 12px 18px;
+    border: 1px solid #ad8745;
+    letter-spacing: 0;
+}
+.location-page .equipment-nav-links a:hover,
+.location-page .equipment-nav-links a.active,
+.location-page .back-home:hover { color: #ad8745; }
+
+@media (max-width: 900px) {
+  .location-page .equipment-nav {
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: 14px;
+    padding: 12px 3%;
+  }
+  .location-page .equipment-logo,
+  .location-page .equipment-logo img { width: 64px; height: 64px; }
+  .location-page .equipment-nav-links { gap: 15px; }
+  .location-page .equipment-nav-links a,
+  .location-page .back-home { font-size: 12px; }
+}
+@media (max-width: 650px) {
+  .location-page .equipment-nav {
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .location-page .equipment-logo,
+  .location-page .equipment-logo img { width: 52px; height: 52px; }
+  .location-page .equipment-nav-links {
+    grid-column: 1 / -1;
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+  .location-page .equipment-nav-links a { font-size: 11px; }
+  .location-page .back-home {
+    grid-column: 2;
+    justify-self: end;
+    align-self: center;
+    margin: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
