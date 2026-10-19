@@ -252,3 +252,15 @@ footer {
     margin: 30px auto;
   }
 }
+
+
+/* Feedback page uses the same shared site navigation */
+body { color: var(--cream); }
+.feedback-card { color: var(--cream); }
+.feedback-card h1 { color: var(--cream); }
+.feedback-card h1 span { color: var(--gold-light); }
+.feedback-card p, .feedback-card label, .feedback-card legend { color: inherit; }
+.feedback-card .eyebrow { color: var(--gold); }
+.feedback-card .intro, .feedback-card .privacy-note, #rating-label { color: var(--muted); }
+.feedback-card form label, .feedback-card .rating-field legend { color: var(--cream); }
+.feedback-card form label span { color: var(--muted); }

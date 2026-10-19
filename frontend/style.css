@@ -4125,3 +4125,30 @@ a.back-home:hover,
     background: #c9a96e;
     color: #111111 !important;
 }
+
+/* ==================================================
+   SHARED NAVIGATION — ALL PAGES
+   ================================================== */
+.site-header {
+  position: sticky; top: 0; z-index: 1000; width: 100%;
+  background: #171717; color: #f4f0e9; border-bottom: 1px solid rgba(198,165,106,.22);
+}
+.site-nav {
+  box-sizing: border-box; width: 100%; max-width: 1500px; min-height: 100px;
+  margin: 0 auto; padding: 12px 4.5%; display: grid;
+  grid-template-columns: 76px minmax(0,1fr) auto; align-items: center; gap: 24px;
+}
+.site-logo { display: block; width: 76px; height: 76px; }
+.site-logo img { display:block; width:100%; height:100%; object-fit:contain; }
+.site-nav-links { display:flex; align-items:center; justify-content:center; flex-wrap:nowrap; gap:clamp(15px,2.5vw,34px); min-width:0; }
+.site-nav-links a { color:#f4f0e9; text-decoration:none; font-size:14px; letter-spacing:.5px; white-space:nowrap; transition:color .2s ease; }
+.site-nav-links a:hover, .site-nav-links a.active { color:#c6a56a; }
+.site-nav-button { justify-self:end; display:inline-block; white-space:nowrap; color:#f4f0e9; border:1px solid #c6a56a; padding:12px 18px; font-size:13px; text-decoration:none; transition:background .2s,color .2s; }
+.site-nav-button:hover { background:#c6a56a; color:#171717; }
+@media(max-width:900px) { .site-nav { grid-template-columns:60px minmax(0,1fr) auto; gap:12px; padding:12px 3%; } .site-logo {width:60px;height:60px;} .site-nav-links {gap:14px;} .site-nav-links a {font-size:12px;} .site-nav-button {font-size:12px;padding:10px 12px;} }
+@media(max-width:650px) { .site-nav {grid-template-columns:52px minmax(0,1fr);gap:10px;padding:10px 14px;} .site-logo {width:52px;height:52px;} .site-nav-button {grid-column:2;grid-row:1;justify-self:end;padding:8px 10px;font-size:11px;} .site-nav-links {grid-column:1/-1;grid-row:2;flex-wrap:wrap;justify-content:center;gap:9px 17px;padding:3px 0 7px;} .site-nav-links a {font-size:12px;} }
+
+/* Equipment text stays comfortably inside each card border */
+.equipment-page .gear-details { padding: clamp(28px, 4.2vw, 56px); min-width:0; }
+.equipment-page .gear-details p, .equipment-page .gear-details ul { max-width:100%; overflow-wrap:anywhere; }
+@media(max-width:650px) { .equipment-page .gear-details { padding:28px 22px; } }
