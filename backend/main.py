@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, Depends, Header, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from fastapi.middleware.cors import CORSMiddleware
  
  
 # --------------------------------------------------
@@ -24,6 +25,18 @@ from pathlib import Path
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env", override=True)
  
 app = FastAPI(title="Zote Jam Room API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://jam-room-booking-frontend.vercel.app",
+        "https://jam-room-booking-frontend-gppowvfe8-steffanie.vercel.app",
+        "https://jam-room-booking-frontend-42lgyri88-steffanie.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
  
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
@@ -82,10 +95,10 @@ def home():
  
  
 # --------------------------------------------------
-# TIME SLOTS
+# TIME slotS
 # --------------------------------------------------
  
-TIME_SLOTS = {
+TIME_slotS = {
     "11 AM – 12 PM": (time(11, 0), time(12, 0)),
     "12 PM – 1 PM": (time(12, 0), time(13, 0)),
     "1 PM – 2 PM": (time(13, 0), time(14, 0)),
@@ -112,7 +125,7 @@ def format_time_slot(start, end):
     start = normalize_mysql_time(start)
     end = normalize_mysql_time(end)
  
-    for label, times in TIME_SLOTS.items():
+    for label, times in TIME_slotS.items():
         if times == (start, end):
             return label
  
@@ -273,7 +286,7 @@ def get_availability(booking_date: date):
  
  
 # --------------------------------------------------
-# CREATE RAZORPAY ORDER AND TEMPORARY BOOKING
+# CREATE RAZORPAY ORDER AND TEMPORARY booking
 # --------------------------------------------------
  
 @app.post("/payments/create-order")
@@ -284,7 +297,7 @@ def create_payment_order(booking: BookingRequest):
     if booking.booking_date.weekday() == 6:
         raise HTTPException(400, "Zote Jam Room is closed on Sundays.")
  
-    if booking.time_slot not in TIME_SLOTS:
+    if booking.time_slot not in TIME_slotS:
         raise HTTPException(400, "Please select a valid one-hour time slot.")
  
     client = get_razorpay_client()
@@ -318,7 +331,7 @@ def create_payment_order(booking: BookingRequest):
                 "The number of people exceeds room capacity.",
             )
  
-        start_time, end_time = TIME_SLOTS[booking.time_slot]
+        start_time, end_time = TIME_slotS[booking.time_slot]
  
         cursor.execute(
             """
@@ -477,7 +490,7 @@ def create_payment_order(booking: BookingRequest):
  
  
 # --------------------------------------------------
-# PAYMENT RECONCILIATION HELPERS
+# payment RECONCILIATION HELPERS
 # --------------------------------------------------
 def _payment_matches_booking(payment_entity, booking_id, order_id, expected_amount_paise):
     """Validate gateway payment details against the server-side booking/order."""
@@ -628,7 +641,7 @@ def _record_captured_payment(booking_id, order_id, payment_id, amount_paise, cur
 
 
 # --------------------------------------------------
-# VERIFY PAYMENT SIGNATURE AND GATEWAY STATUS
+# VERIFY payment SIGNATURE AND GATEWAY STATUS
 # --------------------------------------------------
 @app.post("/payments/verify")
 def verify_payment(payment: PaymentVerification):
@@ -796,7 +809,7 @@ def cancel_payment_checkout(data: PaymentCancellation):
             raise HTTPException(409, "This payment is already recorded as paid.")
 
         # This endpoint is called by the browser's checkout-dismiss handler. A
-        # dismissal does not prove payment failed, so don't mark PAYMENT failed.
+        # dismissal does not prove payment failed, so don't mark payment failed.
         # Release the slot hold; a delayed captured payment is handled by verify/webhook
         # and will be recorded as paid but flagged for manual resolution if stale.
         if row["Status"] == "pending_payment":
@@ -923,7 +936,7 @@ def admin_logout(request: Request, response: Response):
 
 
 # --------------------------------------------------
-# ADMIN BOOKINGS LIST
+# ADMIN bookingS LIST
 # --------------------------------------------------
 # --------------------------------------------------
 # ADMIN STATISTICS
@@ -1146,7 +1159,7 @@ def update_booking_status(
  
  
 # --------------------------------------------------
-# CUSTOMER FEEDBACK
+# customer feedback
 # --------------------------------------------------
  
 class FeedbackRequest(BaseModel):
