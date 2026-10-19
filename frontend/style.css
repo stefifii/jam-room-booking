@@ -4177,3 +4177,61 @@ body {
         animation: none;
     }
 }
+
+
+/* Smooth navigation and button transitions */
+.nav-links a,
+.equipment-nav-links a,
+.nav-button,
+.back-home,
+button,
+input[type="submit"] {
+    transition:
+        color 0.25s ease,
+        background-color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+
+/* Navigation link hover */
+.nav-links a:hover,
+.equipment-nav-links a:hover {
+    color: #d4af37;
+}
+
+/* Gold button hover effect */
+.nav-button:hover,
+button:hover,
+input[type="submit"]:hover {
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+    transform: translateY(-2px);
+}
+
+/* Back-to-home link hover */
+.back-home:hover {
+    color: #d4af37;
+    border-color: #d4af37;
+}
+
+/* Avoid hover movement on touch devices */
+@media (hover: none) {
+    .nav-button:hover,
+    button:hover,
+    input[type="submit"]:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .nav-links a,
+    .equipment-nav-links a,
+    .nav-button,
+    .back-home,
+    button,
+    input[type="submit"] {
+        transition: none;
+    }
+}
