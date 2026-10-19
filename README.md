@@ -7,7 +7,7 @@ A full-stack web application for booking music studio sessions online. **Zote Ja
 - **Website:** https://jam-room-booking-frontend.vercel.app/
 - **Backend API:** https://jam-room-booking.onrender.com/
 - **API Documentation:** https://jam-room-booking.onrender.com/docs
-- **GitHub Repository:** https://github.com/steffiii/jam-room-booking
+- **GitHub Repository:** [https://github.com/steffiii/jam-room-booking](https://github.com/stefifii/jam-room-booking.git)
 
 > **Payment Notice:** Razorpay is currently configured in Test Mode. No real payments are processed.
 
@@ -228,4 +228,4 @@ The frontend communicates with the FastAPI backend through HTTP API requests, an
 
 Developed as a full-stack, database-driven studio booking project.
 
-**Repository:** https://github.com/steffiii/jam-room-booking
+**Repository:** [https://github.com/steffiii/jam-room-booking](https://github.com/stefifii/jam-room-booking.git)
