@@ -1488,8 +1488,11 @@ footer {
 }
 
 
+
 .form-group input,
 .form-group select {
+    box-sizing: border-box;
+
     width: 100%;
 
     padding: 15px 16px;
@@ -1505,9 +1508,10 @@ footer {
     font-size: 13px;
 
     outline: none;
-
+    
     transition: 0.3s;
 }
+
 
 
 .form-group input:focus,
