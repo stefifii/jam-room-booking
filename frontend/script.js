@@ -164,142 +164,140 @@ if (slotsContainer) {
 
 
     // ----------------------------------------
-    // LOAD AVAILABILITY FROM FASTAPI
-    // ----------------------------------------
+// LOAD AVAILABILITY FROM FASTAPI
+// ----------------------------------------
 
-    async function loadAvailability(dateString) {
-        const currentRequest = ++requestNumber;
+async function loadAvailability(dateString) {
+    const currentRequest = ++requestNumber;
 
-        clearSelectedSlot();
+    clearSelectedSlot();
 
-        if (!dateString) {
-            resetSlots();
-            return;
-        }
+    if (!dateString) {
+        resetSlots();
+        return;
+    }
 
-        if (dateString < getLocalDateString()) {
-            resetSlots("Past dates cannot be booked.");
-            showAvailabilityMessage(
-                "Past dates cannot be booked."
-            );
-            return;
-        }
+    // Prevent booking past dates.
+    if (dateString < getLocalDateString()) {
+        resetSlots("Past dates cannot be booked.");
+        return;
+    }
 
-        if (isSunday(dateString)) {
-            resetSlots("The studio is closed on Sundays.");
-            showAvailabilityMessage(
-                "The studio is closed on Sundays."
-            );
-            return;
-        }
+    // Studio is closed on Sundays.
+    if (isSunday(dateString)) {
+        resetSlots("The studio is closed on Sundays.");
+        return;
+    }
 
-        isLoadingAvailability = true;
-        availabilityLoadedFor = null;
+    isLoadingAvailability = true;
+    availabilityLoadedFor = null;
 
-        timeSlots.forEach(slot => {
-            slot.disabled = true;
-            slot.classList.remove("selected");
-            slot.dataset.available = "false";
-        });
+    timeSlots.forEach(slot => {
+        slot.disabled = true;
+        slot.classList.remove("selected");
+        slot.dataset.available = "false";
+    });
 
-        showAvailabilityMessage("Loading available time slots...");
+    showAvailabilityMessage("Loading available time slots...");
 
+    try {
+        // Fetch availability from the backend.
         const response = await fetch(
-  `${API_URL}/availability?booking_date=${encodeURIComponent(dateString)}`
-);
-            const data = await response.json();
+            `${API_URL}/availability?booking_date=${encodeURIComponent(dateString)}`
+        );
 
-            if (currentRequest !== requestNumber) {
-                return;
-            }
+        const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(
-                    data.detail || "Could not load availability."
+        // Ignore outdated requests if the user changes dates quickly.
+        if (currentRequest !== requestNumber) {
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data.detail || "Could not load availability."
+            );
+        }
+
+        if (data.closed) {
+            resetSlots("The studio is closed on this date.");
+            return;
+        }
+
+        if (!Array.isArray(data.slots)) {
+            throw new Error(
+                "Unexpected availability response from the server."
+            );
+        }
+
+        let availableCount = 0;
+
+        timeSlots.forEach(button => {
+            const buttonLabel = normalizeSlotLabel(
+                button.textContent
+            );
+
+            const matchingSlot = data.slots.find(slot => {
+                return (
+                    normalizeSlotLabel(slot.label) === buttonLabel
                 );
-            }
-
-            if (data.closed) {
-                resetSlots("The studio is closed on this date.");
-                return;
-            }
-
-            if (!Array.isArray(data.slots)) {
-                throw new Error(
-                    "Unexpected availability response from the server."
-                );
-            }
-
-            let availableCount = 0;
-
-            timeSlots.forEach(button => {
-                const buttonLabel = normalizeSlotLabel(
-                    button.textContent
-                );
-
-                const matchingSlot = data.slots.find(slot => {
-                    return (
-                        normalizeSlotLabel(slot.label) === buttonLabel
-                    );
-                });
-
-                console.log({
-    buttonLabel,
-    matchingSlot,
-    available: matchingSlot?.available
-});
-
-                if (!matchingSlot) {
-                    button.disabled = true;
-                    button.dataset.available = "false";
-                    return;
-                }
-
-                const available = matchingSlot.available === true;
-
-                button.dataset.available = String(available);
-                button.disabled = !available;
-
-                if (available) {
-                    availableCount++;
-                }
             });
 
-            availabilityLoadedFor = dateString;
-
-            if (availableCount === 0) {
-                showAvailabilityMessage(
-                    "No time slots are currently available."
-                );
-            } else {
-                showAvailabilityMessage(
-                    `${availableCount} time slot(s) available.`
-                );
-            }
-
-        } catch (error) {
-            if (currentRequest !== requestNumber) {
+            if (!matchingSlot) {
+                button.disabled = true;
+                button.dataset.available = "false";
                 return;
             }
 
-            console.error("Availability error:", error);
+            const available = matchingSlot.available === true;
 
-            resetSlots(
-                "Could not load availability. Please refresh and try again."
-            );
+            button.dataset.available = String(available);
+            button.disabled = !available;
 
-        } finally {
-            if (currentRequest === requestNumber) {
-                isLoadingAvailability = false;
+            if (available) {
+                availableCount++;
             }
+        });
+
+        availabilityLoadedFor = dateString;
+
+        if (availableCount === 0) {
+            showAvailabilityMessage(
+                "No time slots are currently available."
+            );
+        } else {
+            showAvailabilityMessage(
+                `${availableCount} time slot(s) available.`
+            );
+        }
+
+    } catch (error) {
+        if (currentRequest !== requestNumber) {
+            return;
+        }
+
+        console.error("Availability error:", error);
+
+        resetSlots(
+            "Could not load availability. Please refresh and try again."
+        );
+
+    } finally {
+        if (currentRequest === requestNumber) {
+            isLoadingAvailability = false;
         }
     }
+}
 
     // ----------------------------------------
     // DATE INPUT
     // ----------------------------------------
 
-    bookingDate.min = getLocalDateString();
+    // Prevent selecting any date before today.
+bookingDate.setAttribute("min", getLocalDateString());
+bookingDate.value = bookingDate.value && bookingDate.value < getLocalDateString()
+    ? getLocalDateString()
+    : bookingDate.value;
 
     bookingDate.addEventListener("change", async () => {
         const selectedDate = bookingDate.value;

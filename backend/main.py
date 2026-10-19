@@ -6,7 +6,6 @@ from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from typing import Literal
 from pathlib import Path
-from typing import Literal
 import mysql.connector
 import razorpay
 from dotenv import load_dotenv
@@ -14,14 +13,12 @@ from fastapi import FastAPI, HTTPException, Depends, Header, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from fastapi.middleware.cors import CORSMiddleware
  
  
 # --------------------------------------------------
 # CONFIGURATION
 # --------------------------------------------------
  
-from pathlib import Path
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env", override=True)
  
 app = FastAPI(title="Zote Jam Room API")
@@ -38,14 +35,13 @@ app.add_middleware(
         "https://jam-room-booking-frontend.vercel.app",
         "https://jam-room-booking-frontend-steffanie.vercel.app",
     ],
-    # Vercel preview/deployment URLs change on every deploy
+    # Matches production deployment previews like ...-gppowvfe8-steffanie.vercel.app
     allow_origin_regex=r"https://jam-room-booking-frontend-[a-z0-9]+-steffanie\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
-    allow_headers=["Content-Type"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
- 
- 
+
 
 def get_db_connection():
     return mysql.connector.connect(
