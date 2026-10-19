@@ -4336,3 +4336,47 @@ textarea {
     display: block;
     width: 100%;
 }
+
+/* FINAL FIX — DATE INPUT MUST STAY INSIDE THE BOOKING CARD */
+@media screen and (max-width: 650px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .booking#booking {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        padding-left: 14px;
+        padding-right: 14px;
+        overflow-x: clip;
+    }
+
+    .booking#booking .booking-container,
+    .booking#booking .booking-form,
+    .booking#booking .booking-form .form-section,
+    .booking#booking .booking-form .form-group {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .booking#booking .booking-form {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .booking#booking #booking-date {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 12px 8px;
+        font-size: 16px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+}
