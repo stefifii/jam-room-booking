@@ -4265,3 +4265,50 @@ textarea {
         min-width: 0;
     }
 }
+
+/* FIX: booking date input overflowing on mobile */
+.booking,
+.booking-container,
+.booking-form,
+.form-section,
+.form-group {
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.booking-container,
+.booking-form,
+.form-section {
+    width: 100%;
+    max-width: 100%;
+}
+
+#booking-date {
+    display: block !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+@media (max-width: 768px) {
+    .booking {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .booking-container,
+    .booking-form,
+    .form-section {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    #booking-date {
+        font-size: 16px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
