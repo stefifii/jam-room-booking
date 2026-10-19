@@ -3814,3 +3814,181 @@ body {
         flex-direction: column;
     }
 }
+
+/* ==================================================
+   MOBILE LAYOUT FIXES — ZOTE JAM ROOM
+   Overrides for small screens without changing desktop styling.
+================================================== */
+@media (max-width: 650px) {
+  /* Homepage: keep the logo and Location button visible, with links on row 2. */
+  header:not(.equipment-header) .navbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  header:not(.equipment-header) .brand {
+    flex: 0 0 58px;
+    width: 58px;
+    height: 58px;
+  }
+
+  header:not(.equipment-header) .nav-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    padding: 10px 12px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  header:not(.equipment-header) .nav-links {
+    display: flex;
+    order: 3;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    padding: 4px 0 2px;
+  }
+
+  header:not(.equipment-header) .nav-links a {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  /* Booking page: stack the form and summary vertically. */
+  .booking#booking {
+    display: block;
+    width: 100%;
+    padding: 48px 14px;
+  }
+
+  .booking-header {
+    margin-bottom: 32px;
+  }
+
+  .booking-header h2 {
+    font-size: clamp(42px, 12vw, 58px);
+    letter-spacing: -2px;
+    overflow-wrap: anywhere;
+  }
+
+  .booking-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    gap: 18px;
+  }
+
+  .booking-form,
+  .booking-summary {
+    width: 100%;
+    min-width: 0;
+    padding: 24px 18px;
+  }
+
+  .form-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    line-height: 1.7;
+  }
+
+  .form-group input,
+  .form-group select,
+  input[type="date"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .time-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .time-slot {
+    min-width: 0;
+    min-height: 54px;
+    padding: 12px 5px;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+
+  .summary-room h3 {
+    font-size: 19px;
+  }
+
+  .confirm-button {
+    min-height: 52px;
+    overflow-wrap: anywhere;
+  }
+
+  /* Other pages: ensure Back to Home remains visible in the header. */
+  .equipment-nav {
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .equipment-logo img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .equipment-nav .nav-links,
+  .location-page .equipment-nav-links {
+    grid-column: 1 / -1;
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+
+  .equipment-nav .nav-links a,
+  .location-page .equipment-nav-links a {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .equipment-nav .back-home,
+  .location-page .back-home {
+    grid-column: 2;
+    justify-self: end;
+    align-self: center;
+    display: inline-block;
+    margin: 0;
+    padding: 8px 0;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .equipment-page,
+  .location-page,
+  body {
+    overflow-x: hidden;
+  }
+}
+
+@media (min-width: 651px) and (max-width: 900px) {
+  .booking#booking {
+    display: block;
+    padding: 70px 24px;
+  }
+
+  .booking-container {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .booking-summary {
+    position: static;
+  }
+}
