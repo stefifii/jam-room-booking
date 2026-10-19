@@ -264,3 +264,28 @@ body { color: var(--cream); }
 .feedback-card .intro, .feedback-card .privacy-note, #rating-label { color: var(--muted); }
 .feedback-card form label, .feedback-card .rating-field legend { color: var(--cream); }
 .feedback-card form label span { color: var(--muted); }
+
+
+/* Smooth page entrance animation */
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body {
+    animation: pageFadeIn 0.35s ease-out both;
+}
+
+/* Accessibility: respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    body {
+        animation: none;
+    }
+}

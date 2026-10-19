@@ -4152,3 +4152,28 @@ a.back-home:hover,
 .equipment-page .gear-details { padding: clamp(28px, 4.2vw, 56px); min-width:0; }
 .equipment-page .gear-details p, .equipment-page .gear-details ul { max-width:100%; overflow-wrap:anywhere; }
 @media(max-width:650px) { .equipment-page .gear-details { padding:28px 22px; } }
+
+
+/* Smooth page entrance animation */
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body {
+    animation: pageFadeIn 0.35s ease-out both;
+}
+
+/* Accessibility: respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    body {
+        animation: none;
+    }
+}
