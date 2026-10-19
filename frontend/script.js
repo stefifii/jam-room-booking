@@ -250,48 +250,37 @@ async function loadAvailability(dateString) {
             );
         }
 
- const available = matchingSlot.available === true;
-const alreadyPassed = isSlotInPast(
-    button.textContent.trim(),
-    dateString
-);
 
-const canBook = available && !alreadyPassed;
+let availableCount = 0;
 
-button.dataset.available = String(canBook);
-button.disabled = !canBook;
+timeSlots.forEach(button => {
+    const buttonLabel = normalizeSlotLabel(
+        button.textContent
+    );
 
-if (canBook) {
-    availableCount++;
-}
-        let availableCount = 0;
+    const matchingSlot = data.slots.find(slot => {
+        return normalizeSlotLabel(slot.label) === buttonLabel;
+    });
 
-        timeSlots.forEach(button => {
-            const buttonLabel = normalizeSlotLabel(
-                button.textContent
-            );
+    const available = matchingSlot
+        ? matchingSlot.available === true
+        : false;
 
-            const matchingSlot = data.slots.find(slot => {
-                return (
-                    normalizeSlotLabel(slot.label) === buttonLabel
-                );
-            });
+    const alreadyPassed = isSlotInPast(
+        button.textContent.trim(),
+        dateString
+    );
 
-            if (!matchingSlot) {
-                button.disabled = true;
-                button.dataset.available = "false";
-                return;
-            }
+    const canBook = available && !alreadyPassed;
 
-            const available = matchingSlot.available === true;
+    button.dataset.available = String(canBook);
+    button.disabled = !canBook;
 
-            button.dataset.available = String(available);
-            button.disabled = !available;
+    if (canBook) {
+        availableCount++;
+    }
+});
 
-            if (available) {
-                availableCount++;
-            }
-        });
 
         availabilityLoadedFor = dateString;
 
