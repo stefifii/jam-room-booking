@@ -4087,24 +4087,41 @@ body {
   }
 }
 
-/* Golden Back to Home button on inner pages */
-.back-home,
+/* Back to Home button — Equipment and Feedback */
+a.back-home,
 .back-home a,
-a.back-home {
+.back-home {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 18px 28px;
+    box-sizing: border-box;
+
+    padding: 16px 28px;
     border: 1px solid #c9a96e;
-    color: #f5f0e6;
     background: transparent;
-    text-decoration: none;
-    transition: all 0.3s ease;
+
+    color: #f5f0e6 !important;
+    text-decoration: none !important;
+    border-radius: 0;
+
+    line-height: 1.5;
+    white-space: nowrap;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.back-home:hover,
+/* Prevent purple link and visited-link colours */
+a.back-home:link,
+a.back-home:visited,
+.back-home a:link,
+.back-home a:visited {
+    color: #f5f0e6 !important;
+    text-decoration: none !important;
+}
+
+/* Hover effect */
+a.back-home:hover,
 .back-home a:hover,
-a.back-home:hover {
+.back-home:hover {
     background: #c9a96e;
-    color: #111;
+    color: #111111 !important;
 }
