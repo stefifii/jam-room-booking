@@ -4086,3 +4086,25 @@ body {
     font-size: 12px;
   }
 }
+
+/* Golden Back to Home button on inner pages */
+.back-home,
+.back-home a,
+a.back-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 28px;
+    border: 1px solid #c9a96e;
+    color: #f5f0e6;
+    background: transparent;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.back-home:hover,
+.back-home a:hover,
+a.back-home:hover {
+    background: #c9a96e;
+    color: #111;
+}
