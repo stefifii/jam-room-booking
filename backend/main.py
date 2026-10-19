@@ -26,27 +26,20 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env", overrid
  
 app = FastAPI(title="Zote Jam Room API")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
- 
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
 RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
  
 app.add_middleware(
     CORSMiddleware,
-    
-allow_origins=[
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-    "https://jam-room-booking-frontend-42lgyri88-steffanie.vercel.app",
-],
-
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "https://jam-room-booking-frontend.vercel.app",
+        "https://jam-room-booking-frontend-steffanie.vercel.app",
+    ],
+    # Vercel preview/deployment URLs change on every deploy
+    allow_origin_regex=r"https://jam-room-booking-frontend-[a-z0-9]+-steffanie\.vercel\.app",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
     allow_headers=["Content-Type"],
@@ -841,6 +834,8 @@ ADMIN_SESSION_MAX_AGE = 30 * 60  # 30 minutes
 ADMIN_ALLOWED_ORIGINS = {
     "http://127.0.0.1:5500",
     "http://localhost:5500",
+    "https://jam-room-booking-frontend.vercel.app",
+    "https://jam-room-booking-frontend-steffanie.vercel.app",
 }
 
 
@@ -909,7 +904,7 @@ def admin_login(data: AdminLoginRequest, request: Request, response: Response):
         max_age=ADMIN_SESSION_MAX_AGE,
         httponly=True,
         secure=secure_cookie,
-        samesite="lax",
+        samesite="none" if secure_cookie else "lax",
         path="/",
     )
     return {"message": "Signed in successfully."}
@@ -925,7 +920,11 @@ def admin_logout(request: Request, response: Response):
         key=ADMIN_SESSION_COOKIE,
         httponly=True,
         secure=os.getenv("ADMIN_COOKIE_SECURE", "false").lower() == "true",
-        samesite="lax",
+        samesite=(
+            "none"
+            if os.getenv("ADMIN_COOKIE_SECURE", "false").lower() == "true"
+            else "lax"
+        ),
         path="/",
     )
     return {"message": "Signed out successfully."}

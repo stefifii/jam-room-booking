@@ -205,8 +205,8 @@ if (slotsContainer) {
         showAvailabilityMessage("Loading available time slots...");
 
         const response = await fetch(
-    `https://jam-room-booking.onrender.com/availability?booking_date=${encodeURIComponent(dateString)}`
-    );
+  `${API_URL}/availability?booking_date=${encodeURIComponent(dateString)}`
+);
             const data = await response.json();
 
             if (currentRequest !== requestNumber) {
