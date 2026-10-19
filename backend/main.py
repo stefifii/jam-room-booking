@@ -143,6 +143,12 @@ class PaymentVerification(BaseModel):
 class PaymentCancellation(BaseModel):
     booking_id: int
     razorpay_order_id: str
+
+
+class BookingLookupRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    phone: str = Field(pattern=r"^[6-9]\d{9}$")
+
  
  
 class AdminStatusUpdate(BaseModel):
@@ -176,7 +182,7 @@ def get_availability(booking_date: date):
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
- 
+
         # Find the studio room
         cursor.execute(
             """
@@ -1313,5 +1319,91 @@ def get_feedback(_: bool = Depends(verify_admin)):
             connection.close()
  
  
+# --------------------------------------------------
+# CUSTOMER: LOOK UP MY BOOKING
+# --------------------------------------------------
 
+@app.post("/my-bookings")
+def lookup_my_bookings(data: BookingLookupRequest):
+    """Return bookings matching the supplied customer name and phone number."""
+    connection = None
+    cursor = None
 
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT
+                b.Booking_ID AS booking_id,
+                COALESCE(NULLIF(TRIM(b.Customer_Name), ''), c.Name) AS customer_name,
+                b.Booking_Date AS booking_date,
+                b.Total_Amount AS total_amount,
+                b.Status AS booking_status,
+                b.Members AS members,
+                s.Start_Time AS start_time,
+                s.End_Time AS end_time,
+                p.Payment_Status AS payment_status,
+                p.Transaction_ID AS transaction_id
+            FROM booking b
+            JOIN customer c
+                ON c.Customer_ID = b.Customer_ID
+            LEFT JOIN booking_slot bs
+                ON bs.Booking_ID = b.Booking_ID
+            LEFT JOIN slot s
+                ON s.Slot_ID = bs.Slot_ID
+            LEFT JOIN payment p
+                ON p.Booking_ID = b.Booking_ID
+            WHERE TRIM(CAST(c.Phone AS CHAR)) = TRIM(%s)
+              AND LOWER(TRIM(COALESCE(NULLIF(b.Customer_Name, ''), c.Name))) = LOWER(TRIM(%s))
+            ORDER BY b.Booking_Date DESC, s.Start_Time DESC, b.Booking_ID DESC
+            """,
+            (data.phone, data.name.strip()),
+        )
+
+        rows = cursor.fetchall()
+        if not rows:
+            raise HTTPException(
+                status_code=404,
+                detail="No bookings matched that name and phone number. Please check the details and try again.",
+            )
+
+        bookings = []
+        for booking in rows:
+            booking_date = booking["booking_date"]
+            start_time = booking["start_time"]
+            end_time = booking["end_time"]
+            bookings.append({
+                "booking_id": booking["booking_id"],
+                "customer_name": booking["customer_name"],
+                "booking_date": booking_date.isoformat() if booking_date else None,
+                "time_slot": (
+                    format_time_slot(start_time, end_time)
+                    if start_time is not None and end_time is not None
+                    else "Slot unavailable"
+                ),
+                "total_amount": float(booking["total_amount"] or 0),
+                "booking_status": booking["booking_status"] or "unknown",
+                "payment_status": booking["payment_status"] or "unknown",
+                "transaction_id": booking["transaction_id"],
+                "members": booking["members"],
+            })
+
+        return {"bookings": bookings}
+
+    except HTTPException:
+        raise
+
+    except mysql.connector.Error as exc:
+        print("My bookings lookup database error:", repr(exc), flush=True)
+        raise HTTPException(
+            status_code=500,
+            detail="Could not retrieve your bookings. Please try again.",
+        )
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()

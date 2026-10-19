@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | Zote Jam Room</title>
+    
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: #151515;
+        color: #f5f5f5;
+        font-family: Arial, sans-serif;
+    }
+
+    /* =========================
+       HEADER AND LOGO
+    ========================= */
+
+    .page-header {
+        width: 100%;
+        min-height: 100px;
+        padding: 18px 7%;
+        border-bottom: 1px solid #403827;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        color: #d7b66a;
+        text-decoration: none;
+        font-size: 23px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        flex-shrink: 1;
+        min-width: 0;
+    }
+
+    .site-logo {
+        display: block;
+        width: 58px;
+        height: 58px;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .back-home {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px 22px;
+        border: 1px solid #d7b66a;
+        color: #f5f5f5;
+        background: transparent;
+        text-decoration: none;
+        white-space: nowrap;
+        font-size: 16px;
+        transition: background 0.25s ease, color 0.25s ease;
+        flex-shrink: 0;
+    }
+
+    .back-home:hover {
+        background: #d7b66a;
+        color: #151515;
+    }
+
+    /* =========================
+       MAIN CONTENT
+    ========================= */
+
+    main {
+        width: min(600px, 92%);
+        margin: 55px auto;
+    }
+
+    h1 {
+        margin: 0 0 16px;
+        font-size: 32px;
+        line-height: 1.25;
+        color: #f5f5f5;
+    }
+
+    .muted {
+        margin: 0 0 28px;
+        color: #aaa;
+        line-height: 1.7;
+        font-size: 17px;
+    }
+
+    /* =========================
+       BOOKING LOOKUP FORM
+    ========================= */
+
+    .panel {
+        width: 100%;
+        min-width: 0;
+        margin-top: 28px;
+        padding: 28px;
+        border: 1px solid #403827;
+        border-radius: 8px;
+        background: #1d1d1d;
+    }
+
+    #lookup-form {
+        width: 100%;
+        min-width: 0;
+    }
+
+    label {
+        display: block;
+        margin: 18px 0 8px;
+        color: #e4d3a8;
+        font-size: 16px;
+    }
+
+    input {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        padding: 14px;
+        border: 1px solid #514833;
+        border-radius: 4px;
+        background: #151515;
+        color: #fff;
+        font-size: 16px;
+        font-family: inherit;
+        outline: none;
+    }
+
+    input::placeholder {
+        color: #777;
+    }
+
+    input:focus {
+        border-color: #d7b66a;
+    }
+
+    button {
+        display: block;
+        width: 100%;
+        margin-top: 24px;
+        padding: 15px;
+        border: 1px solid #d7b66a;
+        border-radius: 4px;
+        background: #d7b66a;
+        color: #171717;
+        font-family: inherit;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.25s ease;
+    }
+
+    button:hover:not(:disabled) {
+        background: #e7cb83;
+    }
+
+    button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+    }
+
+    /* =========================
+       STATUS MESSAGES
+    ========================= */
+
+    #message {
+        margin-top: 18px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .error {
+        color: #ff8d8d;
+    }
+
+    .success {
+        color: #a7e5b2;
+    }
+
+    /* =========================
+       BOOKING DETAILS
+    ========================= */
+
+    .details {
+        width: 100%;
+        margin-top: 22px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        padding: 13px 0;
+        border-bottom: 1px solid #393939;
+    }
+
+    .detail-row span:first-child {
+        color: #aaa;
+        flex-shrink: 0;
+    }
+
+    .detail-row span:last-child {
+        text-align: right;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .status {
+        display: inline-block;
+        padding: 5px 9px;
+        border: 1px solid #655738;
+        border-radius: 4px;
+        color: #e4d3a8;
+    }
+
+    /* =========================
+       TABLET AND MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+        .page-header {
+            padding: 16px 5%;
+            min-height: 80px;
+            gap: 12px;
+        }
+
+        .brand {
+            gap: 9px;
+            font-size: 16px;
+            letter-spacing: 0;
+        }
+
+        .site-logo {
+            width: 44px;
+            height: 44px;
+        }
+
+        .back-home {
+            padding: 12px 10px;
+            font-size: 13px;
+        }
+
+        main {
+            width: 92%;
+            margin: 35px auto;
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        .muted {
+            font-size: 15px;
+        }
+
+        .panel {
+            padding: 22px;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .page-header {
+            padding: 14px 4%;
+            gap: 8px;
+        }
+
+        .brand {
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .site-logo {
+            width: 36px;
+            height: 36px;
+        }
+
+        .back-home {
+            padding: 10px 7px;
+            font-size: 11px;
+        }
+
+        main {
+            width: 92%;
+            margin: 28px auto;
+        }
+
+        .panel {
+            padding: 16px;
+        }
+
+        .detail-row {
+            gap: 10px;
+        }
+    }
+</style>
+
+
+</head>
+<body>
+    
+
+<header class="page-header">
+    <a href="index.html" class="brand">
+        <img src="images/zte.png" alt="Zote Jam Room" class="site-logo">
+        <span>ZOTE JAM ROOM</span>
+    </a>
+
+    <a href="index.html" class="back-home">← Back to home</a>
+</header>
+
+
+    <main>
+        <h1>My Bookings</h1>
+        <p class="muted">
+            Enter the name and phone number you used when booking to view all your sessions.
+        </p>
+
+        <section class="panel">
+            <form id="lookup-form">
+                <label for="customer-name">Full name</label>
+                <input
+                    id="customer-name"
+                    type="text"
+                    maxlength="100"
+                    autocomplete="name"
+                    placeholder="Name used when booking"
+                    required
+                >
+
+                <label for="phone">Phone number</label>
+                <input
+                    id="phone"
+                    type="tel"
+                    inputmode="numeric"
+                    pattern="[6-9][0-9]{9}"
+                    maxlength="10"
+                    autocomplete="tel-national"
+                    placeholder="10-digit phone number"
+                    required
+                >
+
+                <button id="lookup-button" type="submit">
+                    Find My Bookings
+                </button>
+            </form>
+
+            <div id="message" role="status" aria-live="polite"></div>
+            <div id="booking-details" class="details" hidden></div>
+        </section>
+    </main>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        const form = document.getElementById("lookup-form");
+        const button = document.getElementById("lookup-button");
+        const message = document.getElementById("message");
+        const details = document.getElementById("booking-details");
+
+        function showMessage(text, type = "") {
+            message.textContent = text;
+            message.className = type;
+        }
+
+        function readableStatus(value) {
+            if (!value) return "Unknown";
+            return String(value)
+                .replaceAll("_", " ")
+                .replace(/\b\w/g, char => char.toUpperCase());
+        }
+
+        function addDetail(container, label, value) {
+            const row = document.createElement("div");
+            row.className = "detail-row";
+
+            const left = document.createElement("span");
+            left.textContent = label;
+
+            const right = document.createElement("span");
+            right.textContent = value === null || value === undefined || value === ""
+                ? "—"
+                : String(value);
+
+            row.append(left, right);
+            container.appendChild(row);
+        }
+
+        function renderBooking(booking) {
+            const card = document.createElement("section");
+            card.className = "panel";
+            card.style.marginTop = "18px";
+            card.style.padding = "20px";
+
+            const heading = document.createElement("h2");
+            heading.textContent = `Booking #${booking.booking_id}`;
+            heading.style.margin = "0 0 8px";
+            heading.style.fontSize = "21px";
+            heading.style.color = "#d7b66a";
+            card.appendChild(heading);
+
+            addDetail(card, "Customer", booking.customer_name);
+            addDetail(card, "Booking date", booking.booking_date);
+            addDetail(card, "Time slot", booking.time_slot);
+            addDetail(card, "Members", booking.members);
+            addDetail(card, "Amount", `₹${Number(booking.total_amount || 0).toFixed(2)}`);
+            addDetail(card, "Booking status", readableStatus(booking.booking_status));
+            addDetail(card, "Payment status", readableStatus(booking.payment_status));
+            if (booking.transaction_id) {
+                addDetail(card, "Transaction ID", booking.transaction_id);
+            }
+            return card;
+        }
+
+        form.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const name = document.getElementById("customer-name").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+
+            if (!name) {
+                showMessage("Please enter the name used when booking.", "error");
+                return;
+            }
+            if (!/^[6-9]\d{9}$/.test(phone)) {
+                showMessage("Enter a valid 10-digit phone number.", "error");
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = "Searching...";
+            details.replaceChildren();
+            details.hidden = true;
+            showMessage("Looking up your bookings...");
+
+            try {
+                const response = await fetch(`${API_URL}/my-bookings`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, phone })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Could not retrieve your bookings.");
+                }
+
+                const bookings = Array.isArray(data.bookings) ? data.bookings : [];
+                if (bookings.length === 0) {
+                    throw new Error("No bookings matched that name and phone number. Please check the details and try again.");
+                }
+
+                bookings.forEach(booking => details.appendChild(renderBooking(booking)));
+                details.hidden = false;
+                showMessage(`Found ${bookings.length} booking${bookings.length === 1 ? "" : "s"}.`, "success");
+            } catch (error) {
+                showMessage(error.message || "Unable to connect. Please try again.", "error");
+            } finally {
+                button.disabled = false;
+                button.textContent = "Find My Bookings";
+            }
+        });
+    </script>
+</body>
+</html>
