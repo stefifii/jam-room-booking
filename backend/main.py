@@ -28,12 +28,8 @@ app = FastAPI(title="Zote Jam Room API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://jam-room-booking-frontend.vercel.app",
-        "https://jam-room-booking-frontend-gppowvfe8-steffanie.vercel.app",
-        "https://jam-room-booking-frontend-42lgyri88-steffanie.vercel.app",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
