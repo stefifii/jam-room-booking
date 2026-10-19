@@ -130,5 +130,5 @@ The application uses MySQL to store booking and related records. The database de
 
 Developed as a full-stack database-driven studio booking project.
 
-**Repository:** https://github.com/steffiii/jam-room-booking
+**Repository:** [https://github.com/steffiii/jam-room-booking](https://github.com/stefifii/jam-room-booking.git)
 
