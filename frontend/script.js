@@ -1,15 +1,21 @@
 console.log("ZOTE SCRIPT LOADED — VERSION CHECK 1");
 const API_URL = "https://jam-room-booking.onrender.com";
 
+
 function isSlotInPast(slotLabel, dateString) {
     const now = new Date();
+
     const today = [
         now.getFullYear(),
         String(now.getMonth() + 1).padStart(2, "0"),
         String(now.getDate()).padStart(2, "0")
     ].join("-");
 
-    if (dateString !== today) return false;
+    // Future dates should remain bookable.
+    if (dateString > today) return false;
+
+    // Past dates should not be bookable.
+    if (dateString < today) return true;
 
     const match = slotLabel.match(
         /(\d{1,2})\s*(AM|PM)\s*[-–—]\s*(\d{1,2})\s*(AM|PM)/i
@@ -17,20 +23,22 @@ function isSlotInPast(slotLabel, dateString) {
 
     if (!match) return false;
 
-    let endHour = parseInt(match[3], 10);
-    const endPeriod = match[4].toUpperCase();
+    let startHour = parseInt(match[1], 10);
+    const startPeriod = match[2].toUpperCase();
 
-    if (endPeriod === "AM" && endHour === 12) {
-        endHour = 0;
-    } else if (endPeriod === "PM" && endHour !== 12) {
-        endHour += 12;
+    if (startPeriod === "AM" && startHour === 12) {
+        startHour = 0;
+    } else if (startPeriod === "PM" && startHour !== 12) {
+        startHour += 12;
     }
 
-    const slotEnd = new Date(dateString + "T00:00:00");
-    slotEnd.setHours(endHour, 0, 0, 0);
+    const slotStart = new Date(`${dateString}T00:00:00`);
+    slotStart.setHours(startHour, 0, 0, 0);
 
-    return slotEnd <= now;
+    // Disable slots whose starting time has arrived.
+    return slotStart <= now;
 }
+
 
 const bookingDate = document.getElementById("booking-date");
 
